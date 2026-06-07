@@ -1,0 +1,42 @@
+<div class="container0">
+  <div class="container" >
+
+    <!--Registro -->
+
+    <div class="form-container login-container">
+      <form [formGroup]="usuariosForm" (ngSubmit)="save()">
+    <h1>Crear Cuenta</h1>
+
+    <div class="form-control">
+      <input type="text" placeholder="Nombre" formControlName="nombre">
+      
+    </div>
+
+    <div class="form-control">
+      <input type="email" placeholder="Correo" formControlName="email">
+      
+    </div>
+
+    <div class="form-control">
+      <input type="password" placeholder="Contraseña" formControlName="password">
+      
+    </div>
+
+    <div class="form-control">
+      <input type="password" placeholder="Confirmar contraseña" formControlName="passwordConfirm">
+      
+    </div>
+
+    <div class="form-control">
+      <input type="tel" placeholder="Teléfono" formControlName="phone">
+      
+    </div>
+
+    <button type="submit" [disabled]="usuariosForm.invalid">
+      Registrarse
+    </button>
+  </form>
+    </div>
+
+  </div>
+</div>
