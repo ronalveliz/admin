@@ -3,7 +3,7 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthenticationService } from './authentication.service';
 
 export const userLoggedIntGuard: CanActivateFn = (route, state) => {
-   const authService = inject(AuthenticationService);
+  const authService = inject(AuthenticationService);
   const router = inject(Router);
 
   if (authService.existsToken()) {

@@ -7,7 +7,7 @@ Sirve para interceptar las peticiones HTTP que se envían de Angular a Backend.
 Agrega el token JWT en una cabecera (header) de la petición HTTP
 */
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
-  
+
   const token = localStorage.getItem("jwt_token");
   console.log("JWT Token:", token);
 
@@ -19,5 +19,4 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   return next(req);
-
 };
