@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -13,74 +14,83 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import Bumerak.administrador.seguridad.jwt.JwtFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
 
 @Configuration
 @AllArgsConstructor
-
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SegurityConfig {
-
-    public final JwtFilter jwtFilter;
+    private final JwtFilter jwtFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Configuración CORS
-        http.cors(cors -> cors.configurationSource(request -> {
-            CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedOrigins(List.of("http://localhost:4200"));
-            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-            config.setAllowedHeaders(List.of("*"));
-            config.setAllowCredentials(true);
-            config.setMaxAge(3600L);
-            return config;
-        }));
+        http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        // Rutas PÚBLICAS
+                        .requestMatchers(
+                                "/api/auth/login",
+                                "/api/auth/registro",
+                                "/users/login",
+                                "/users/register",
+                                "/files/**",
+                                "/h2-console/**"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-        // Configuración CSRF y manejo de sesión
-        http.csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                        // Rutas para ADMINISTRADORES
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/perfiles/**",
+                                "/api/grupos/**"
+                        ).hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_FAMILIA", "ROLE_EMPRESA")
 
-        // Configuración de autorización
-        http.authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                        "/users/login",
-                        "/users/register",
-                        "/files/**",
-                        "/users/account/avatar"
-                ).permitAll()
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/productos/**", "/category/**","/users/**").permitAll()
-                .requestMatchers(
-                        HttpMethod.POST,
-                        "/users/**",
-                        "/productos/**",
-                        "/category/**",
-                        "/tienda/**"
-                ).hasAnyAuthority("ROLE_ADMIN", "ROLE_TIENDA")
-                .requestMatchers(
-                        HttpMethod.PUT,
-                        "/users/**",
-                        "/productos/**",
-                        "/category/**",
-                        "/tienda/**"
-                ).hasAnyAuthority("ROLE_ADMIN", "ROLE_TIENDA")
-                .requestMatchers(
-                        HttpMethod.DELETE,
-                        "/users/**",
-                        "/productos/**",
-                        "/category/**"
-                ).hasAuthority("ROLE_ADMIN")
-                .anyRequest().authenticated()
-        );
+                        .requestMatchers(HttpMethod.PUT,
+                                "/api/perfiles/**",
+                                "/api/grupos/**"
+                        ).hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_FAMILIA", "ROLE_EMPRESA")
 
-        // Añadir filtro JWT
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                        .requestMatchers(HttpMethod.DELETE,
+                                "/api/perfiles/**"
+                        ).hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_FAMILIA", "ROLE_EMPRESA")
+
+                        // Rutas para MOVIMIENTOS (todos los autenticados)
+                        .requestMatchers("/api/movimientos/**").authenticated()
+
+                        // Cualquier otra ruta requiere autenticación
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of(
+                "http://localhost:4200",
+                "http://localhost:3000",
+                "http://localhost:8080"
+        ));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
+        config.addExposedHeader("Authorization");
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }

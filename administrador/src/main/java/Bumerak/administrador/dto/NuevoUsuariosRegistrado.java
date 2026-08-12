@@ -1,13 +1,15 @@
 package Bumerak.administrador.dto;
 
-import Bumerak.administrador.entidades.RolName;
+import Bumerak.administrador.entidades.enums.TipoRol;
 
 public record NuevoUsuariosRegistrado(
         String email,
         String password,
         String nombre,
-        String phone,
-        RolName roleName,
-        String imgUser
+        String telefono,
+        TipoRol roleName,
+        String imgUser,
+        String nombreGrupo,      // Nuevo
+        String descripcionGrupo
 ) {
 }

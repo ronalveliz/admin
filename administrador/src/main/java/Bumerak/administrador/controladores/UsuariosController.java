@@ -1,160 +1,240 @@
 package Bumerak.administrador.controladores;
 
-import Bumerak.administrador.dto.LoginUsuarios;
-import Bumerak.administrador.dto.NuevoUsuariosRegistrado;
-import Bumerak.administrador.dto.Token;
-import Bumerak.administrador.entidades.RolName;
+import Bumerak.administrador.dto.response.PerfilResponse;
+import Bumerak.administrador.entidades.Perfil;
+import Bumerak.administrador.entidades.enums.TipoRol;
 import Bumerak.administrador.entidades.Usuarios;
+import Bumerak.administrador.exception.CustomException;
 import Bumerak.administrador.exception.FileException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import lombok.AllArgsConstructor;
+import Bumerak.administrador.servicios.PerfilService;
+import Bumerak.administrador.servicios.UsuarioService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 import Bumerak.administrador.repositorios.UsuariosRepository;
 import Bumerak.administrador.seguridad.jwt.JwtUtil;
 import Bumerak.administrador.servicios.FileService;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
-@CrossOrigin("*")
-@Slf4j
-@RestController
-@AllArgsConstructor
-public class UsuariosController {
+    @CrossOrigin("*")
+    @Slf4j
+    @RestController
+    @RequiredArgsConstructor
+    @RequestMapping("/api/usuarios")
+    public class UsuariosController {
 
-    private final UsuariosRepository repo;
-    private final FileService fileService;
-    private final PasswordEncoder passwordEncoder;
+        private final UsuariosRepository usuariosRepository;
+        private final UsuarioService usuarioService;
+        private final PerfilService perfilService;
+        private final FileService fileService;
+        private final PasswordEncoder passwordEncoder;
 
-
-    @GetMapping("users")
-    @PreAuthorize("hasRole('ADMIN')")
-    public List<Usuarios> findAll(){
-
-        return repo.findAll();
-    }
-
-    @PostMapping("users/register")
-    public void register(@RequestBody NuevoUsuariosRegistrado register) {
-
-        if (this.repo.existsByEmail(register.email())){
-            throw new BadCredentialsException("Email ocupado. Elija otro email.");
+        // ========== OBTENER TODOS LOS USUARIOS ==========
+        @GetMapping
+        @PreAuthorize("hasRole('ADMINISTRADOR')")
+        public ResponseEntity<List<Usuarios>> findAll() {
+            log.info("📋 Obteniendo todos los usuarios");
+            List<Usuarios> usuarios = usuariosRepository.findAll();
+            return ResponseEntity.ok(usuarios);
         }
 
-        Usuarios user = Usuarios.builder()
-                .email(register.email())
-                .password(passwordEncoder.encode(register.password()))
-                .nombre(register.nombre())
-                .rolName(register.roleName()).rolName(RolName.USUARIOS)
-                .imgUser(register.imgUser()).imgUser("https://www.pngkey.com/png/detail/230-2301779_best-classified-apps-default-user-profile.png")
-                .build();
-        this.repo.save(user);
-    }
-
-    @PostMapping("/users/login")
-    public Token login(@RequestBody LoginUsuarios login) {
-        JwtUtil.getCurrentUser().ifPresent(System.out::println);
-
-        if (!repo.existsByEmail(login.email())) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
+        // ========== OBTENER USUARIO POR ID ==========
+        @GetMapping("/{id}")
+        @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('FAMILIA') or hasRole('EMPRESA')")
+        public ResponseEntity<Usuarios> findById(@PathVariable Long id) {
+            log.info("📋 Obteniendo usuario ID: {}", id);
+            Usuarios usuario = usuarioService.getUsuarioById(id);
+            return ResponseEntity.ok(usuario);
         }
-        Usuarios user = repo.findByEmail(login.email()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
-        if(!passwordEncoder.matches(login.password(), user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas");
+
+        // ========== OBTENER USUARIO ACTUAL ==========
+        @GetMapping("/account")
+        @PreAuthorize("isAuthenticated()")
+        public ResponseEntity<Usuarios> getCurrentUser() {
+            log.info("📋 Obteniendo usuario actual");
+            Usuarios usuario = JwtUtil.getCurrentUser()
+                    .orElseThrow(() -> new CustomException("Usuario no autenticado", HttpStatus.UNAUTHORIZED));
+            return ResponseEntity.ok(usuario);
         }
-        Date issuedDate = new Date();
-        long nextWeekMillis = TimeUnit.DAYS.toMillis(7);
-        Date expirationDate = new Date(issuedDate.getTime() + nextWeekMillis);
 
-        byte[] key = Base64.getDecoder().decode("4PWbGp0oV5si8hXJS0Hl/yk9RWX7SZK7DdckNx3e0cQ=");
+        // ========== OBTENER PERFILES DEL USUARIO ACTUAL ==========
+        @GetMapping("/account/perfiles")
+        @PreAuthorize("isAuthenticated()")
+        public ResponseEntity<List<PerfilResponse>> getCurrentUserPerfiles() {
+            log.info("📋 Obteniendo perfiles del usuario actual");
 
-        String token = Jwts.builder()
-                // id del usuario
-                .subject(String.valueOf(user.getId()))
-                // La clave secreta para firmar el token y saber que es nuestro cuando lleguen las peticiones del frontend
-                .signWith(Keys.hmacShaKeyFor(key))
-                // Fecha emisión del token
-                .issuedAt(issuedDate)
-                // Fecha de expiración del token
-                .expiration(expirationDate)
-                // información personalizada: rol, username, email...
-                .claim("rolname", user.getRolName())
-                .claim("email", user.getEmail())
-                // Construye el token
-                .compact();
-        return ResponseEntity.ok(new Token(token)).getBody();
+            Usuarios usuario = JwtUtil.getCurrentUser()
+                    .orElseThrow(() -> new CustomException("Usuario no autenticado", HttpStatus.UNAUTHORIZED));
 
+            List<Perfil> perfiles = usuario.getPerfilesAccesibles();
+            List<PerfilResponse> response = perfiles.stream()
+                    .map(PerfilResponse::fromEntity)
+                    .collect(Collectors.toList());
 
-    }
-    // Get account
-    @GetMapping("users/account")
-    @PreAuthorize("hasRole('ADMIN')")
-    public Usuarios getCurrentUser() {
-        return JwtUtil.getCurrentUser().orElseThrow();
-    }
+            return ResponseEntity.ok(response);
+        }
 
+        // ========== ACTUALIZAR USUARIO ==========
+        @PutMapping("/account")
+        @PreAuthorize("isAuthenticated()")
+        public ResponseEntity<Usuarios> updateCurrentUser(@RequestBody Usuarios user) {
+            log.info("✏️ Actualizando usuario actual");
 
-    @PutMapping("user/account")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('TIENDA')")
-    public Usuarios update(@RequestBody Usuarios user) {
-        // Si está autenticado, y el usuario autenticado es ADMIN o es el mismo usuario que la variable user
-        // entonces actualizar, en caso contrario no actualizamos
-        JwtUtil.getCurrentUser().ifPresent(currentUser -> {
-            if (currentUser.getRolName() == RolName.ADMINISTRADOR|| Objects.equals(currentUser.getId(), user.getId())) {
-                this.repo.save(user);
-            } else {
-                throw new RuntimeException("No puede actualizar"); // Reemplazar por Excepción personalizada
+            Usuarios currentUser = JwtUtil.getCurrentUser()
+                    .orElseThrow(() -> new CustomException("Usuario no autenticado", HttpStatus.UNAUTHORIZED));
+
+            // Solo ADMIN o el mismo usuario pueden actualizar
+            if (currentUser.getRol() != TipoRol.ADMINISTRADOR &&
+                    !Objects.equals(currentUser.getId(), user.getId())) {
+                throw new CustomException("No tienes permiso para actualizar este usuario", HttpStatus.FORBIDDEN);
             }
-        });
 
-        return user;
-    }
+            // Actualizar solo campos permitidos
+            currentUser.setNombre(user.getNombre());
+            currentUser.setTelefono(user.getTelefono());
+            currentUser.setDireccion(user.getDireccion());
 
-    // subir avatar
-    @PostMapping("user/account/avatar")
-    @PreAuthorize("hasRole('ADMIN')")
-    public Usuarios uploadAvatar(
-            @RequestParam(value = "photo") MultipartFile file
-    ) throws FileException {
+            // Si es ADMIN, puede cambiar el rol
+            if (currentUser.getRol() == TipoRol.ADMINISTRADOR && user.getRol() != null) {
+                currentUser.setRol(user.getRol());
+            }
 
-        Usuarios user = JwtUtil.getCurrentUser().orElseThrow();
+            Usuarios updatedUser = usuariosRepository.save(currentUser);
+            log.info("✅ Usuario actualizado: {}", updatedUser.getEmail());
 
-        if (file != null && !file.isEmpty()) {
-            String fileName = fileService.store(file);
-            user.setImgUser(fileName);
-            this.repo.save(user);
+            return ResponseEntity.ok(updatedUser);
         }
 
-        return user;
-    }
-    // subir avatar
-    @PutMapping ("user/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    private ResponseEntity<Usuarios> update(@RequestBody Usuarios user, @PathVariable Long id){
-        Optional<Usuarios> userOtp = repo.findById(id);
-        if (user.getId() == null){
-            return ResponseEntity.badRequest().build();
+        // ========== CAMBIAR CONTRASEÑA ==========
+        @PutMapping("/account/password")
+        @PreAuthorize("isAuthenticated()")
+        public ResponseEntity<Void> changePassword(
+                @RequestParam String currentPassword,
+                @RequestParam String newPassword) {
+
+            log.info("🔑 Cambiando contraseña");
+
+            Usuarios currentUser = JwtUtil.getCurrentUser()
+                    .orElseThrow(() -> new CustomException("Usuario no autenticado", HttpStatus.UNAUTHORIZED));
+
+            // Verificar contraseña actual
+            if (!passwordEncoder.matches(currentPassword, currentUser.getPassword())) {
+                throw new CustomException("Contraseña actual incorrecta", HttpStatus.UNAUTHORIZED);
+            }
+
+            // Actualizar contraseña
+            currentUser.setPassword(passwordEncoder.encode(newPassword));
+            usuariosRepository.save(currentUser);
+
+            log.info("✅ Contraseña actualizada para: {}", currentUser.getEmail());
+            return ResponseEntity.ok().build();
         }
-        Usuarios usuariosFromDB = userOtp.get();
-        // faltan mas atributos
-        return ResponseEntity.ok(repo.save(usuariosFromDB));
+
+        // ========== SUBIR AVATAR ==========
+        @PostMapping("/account/avatar")
+        @PreAuthorize("isAuthenticated()")
+        public ResponseEntity<Usuarios> uploadAvatar(@RequestParam("photo") MultipartFile file) {
+            log.info("📤 Subiendo avatar");
+
+            Usuarios currentUser = JwtUtil.getCurrentUser()
+                    .orElseThrow(() -> new CustomException("Usuario no autenticado", HttpStatus.UNAUTHORIZED));
+
+            try {
+                if (file != null && !file.isEmpty()) {
+                    String fileName = fileService.store(file);
+                    currentUser.setFotoPerfil(fileName);
+                    usuariosRepository.save(currentUser);
+                    log.info("✅ Avatar actualizado para: {}", currentUser.getEmail());
+                }
+                return ResponseEntity.ok(currentUser);
+            } catch (FileException e) {
+                log.error("❌ Error al subir avatar: {}", e.getMessage());
+                throw new CustomException("Error al subir avatar: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        // ========== ACTUALIZAR USUARIO POR ID (SOLO ADMIN) ==========
+        @PutMapping("/{id}")
+        @PreAuthorize("hasRole('ADMINISTRADOR')")
+        public ResponseEntity<Usuarios> updateUserById(
+                @PathVariable Long id,
+                @RequestBody Usuarios user) {
+
+            log.info("✏️ Actualizando usuario ID: {}", id);
+
+            Usuarios existingUser = usuarioService.getUsuarioById(id);
+
+            // Actualizar campos
+            existingUser.setNombre(user.getNombre());
+            existingUser.setTelefono(user.getTelefono());
+            existingUser.setDireccion(user.getDireccion());
+            existingUser.setFotoPerfil(user.getFotoPerfil());
+
+            if (user.getRol() != null) {
+                existingUser.setRol(user.getRol());
+            }
+
+            if (user.getEnabled() != null) {
+                existingUser.setEnabled(user.getEnabled());
+            }
+
+            Usuarios updatedUser = usuariosRepository.save(existingUser);
+            log.info("✅ Usuario actualizado por ADMIN: {}", updatedUser.getEmail());
+
+            return ResponseEntity.ok(updatedUser);
+        }
+
+        // ========== ELIMINAR USUARIO (SOLO ADMIN) ==========
+        @DeleteMapping("/{id}")
+        @PreAuthorize("hasRole('ADMINISTRADOR')")
+        public ResponseEntity<Void> deleteById(@PathVariable Long id) {
+            log.info("🗑️ Eliminando usuario ID: {}", id);
+
+            Usuarios usuario = usuarioService.getUsuarioById(id);
+
+            // No permitir eliminar al propio admin
+            Usuarios currentUser = JwtUtil.getCurrentUser()
+                    .orElseThrow(() -> new CustomException("Usuario no autenticado", HttpStatus.UNAUTHORIZED));
+
+            if (Objects.equals(currentUser.getId(), id)) {
+                throw new CustomException("No puedes eliminar tu propio usuario", HttpStatus.BAD_REQUEST);
+            }
+
+            // Deshabilitar lógicamente en lugar de eliminar
+            usuario.setEnabled(false);
+            usuariosRepository.save(usuario);
+
+            log.info("✅ Usuario deshabilitado: {}", usuario.getEmail());
+            return ResponseEntity.noContent().build();
+        }
+
+        // ========== HABILITAR USUARIO (SOLO ADMIN) ==========
+        @PutMapping("/{id}/habilitar")
+        @PreAuthorize("hasRole('ADMINISTRADOR')")
+        public ResponseEntity<Void> habilitarUsuario(@PathVariable Long id) {
+            log.info("🔄 Habilitando usuario ID: {}", id);
+
+            Usuarios usuario = usuarioService.getUsuarioById(id);
+            usuario.setEnabled(true);
+            usuariosRepository.save(usuario);
+
+            log.info("✅ Usuario habilitado: {}", usuario.getEmail());
+            return ResponseEntity.ok().build();
+        }
+
+        // ========== OBTENER USUARIOS POR ROL ==========
+        @GetMapping("/rol/{rol}")
+        @PreAuthorize("hasRole('ADMINISTRADOR')")
+        public ResponseEntity<List<Usuarios>> findByRol(@PathVariable TipoRol rol) {
+            log.info("📋 Obteniendo usuarios con rol: {}", rol);
+            List<Usuarios> usuarios = usuariosRepository.findByRol(rol);
+            return ResponseEntity.ok(usuarios);
+        }
     }
-
-
-    @DeleteMapping("user/id")
-    @PreAuthorize("hasRole('ADMIN')")
-    private ResponseEntity<Void> deleteById(@PathVariable Long id){
-        repo.deleteById(id);
-        return ResponseEntity.noContent().build(); //204
-    }
-}
-
