@@ -13,15 +13,15 @@ export const routes: Routes = [
     },
     {
         path: 'login',
-        loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent)
+        loadComponent: () => import('./pages/login/login').then(m => m.Login)
     },
     {
         path: 'registro',
-        loadComponent: () => import('./pages/registro/registro.component').then(m => m.RegistroComponent)
+        loadComponent: () => import('./pages/registro/registro').then(m => m.Registro)
     },
     {
         path: 'home',
-        loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent),
+        loadComponent: () => import('./pages/home/home').then(m => m.Home),
         canActivate: [authGuard]
     },
     {
@@ -30,23 +30,23 @@ export const routes: Routes = [
         children: [
             {
                 path: '',
-                loadComponent: () => import('./pages/perfiles/perfil-list/perfil-list.component')
-                    .then(m => m.PerfilListComponent)
+                loadComponent: () => import('./pages/perfiles/perfil-list/perfil-list')
+                    .then(m => m.PerfilList)
             },
             {
                 path: 'nuevo',
-                loadComponent: () => import('./pages/perfiles/perfil-form/perfil-form.component')
-                    .then(m => m.PerfilFormComponent)
+                loadComponent: () => import('./pages/perfiles/perfil-form/perfil-form')
+                    .then(m => m.PerfilForm)
             },
             {
                 path: ':id',
-                loadComponent: () => import('./pages/perfiles/perfil-form/perfil-form.component')
-                    .then(m => m.PerfilFormComponent)
+                loadComponent: () => import('./pages/perfiles/perfil-form/perfil-form')
+                    .then(m => m.PerfilForm)
             },
             {
                 path: ':id/editar',
-                loadComponent: () => import('./pages/perfiles/perfil-form/perfil-form.component')
-                    .then(m => m.PerfilFormComponent)
+                loadComponent: () => import('./pages/perfiles/perfil-form/perfil-form')
+                    .then(m => m.PerfilForm)
             }
         ]
     },
@@ -56,31 +56,31 @@ export const routes: Routes = [
         children: [
             {
                 path: '',
-                loadComponent: () => import('./pages/movimientos/movimiento-list/movimiento-list.component')
-                    .then(m => m.MovimientoListComponent)
+                loadComponent: () => import('./pages/movimientos/movimiento-list/movimiento-list')
+                    .then(m => m.MovimientoList)
             },
             {
                 path: 'nuevo',
-                loadComponent: () => import('./pages/movimientos/movimiento-form/movimiento-form.component')
-                    .then(m => m.MovimientoFormComponent)
+                loadComponent: () => import('./pages/movimientos/movimiento-form/movimiento-form')
+                    .then(m => m.MovimientoForm)
             },
             {
                 path: ':id',
-                loadComponent: () => import('./pages/movimientos/movimiento-form/movimiento-form.component')
-                    .then(m => m.MovimientoFormComponent)
+                loadComponent: () => import('./pages/movimientos/movimiento-form/movimiento-form')
+                    .then(m => m.MovimientoForm)
             }
         ]
     },
     {
         path: 'usuarios',
-        loadComponent: () => import('./pages/usuarios-form/usuarios-form.component')
-            .then(m => m.UsuariosFormComponent),
+        loadComponent: () => import('./pages/usuarios-form/usuarios-form')
+            .then(m => m.UsuariosForm),
         canActivate: [authGuard, adminGuard]
     },
     {
         path: 'not-found',
-        loadComponent: () => import('./pages/not-found/not-found.component')
-            .then(m => m.NotFoundComponent)
+        loadComponent: () => import('./pages/not-found/not-found')
+            .then(m => m.NotFound)
     },
     {
         path: '**',
