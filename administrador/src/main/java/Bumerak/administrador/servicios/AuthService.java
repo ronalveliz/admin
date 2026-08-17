@@ -8,6 +8,7 @@ import Bumerak.administrador.entidades.Grupo;
 import Bumerak.administrador.entidades.Perfil;
 import Bumerak.administrador.entidades.Usuarios;
 import Bumerak.administrador.entidades.enums.TipoPerfil;
+import Bumerak.administrador.entidades.enums.TipoRol;
 import Bumerak.administrador.exception.CustomException;
 import Bumerak.administrador.repositorios.GrupoRepository;
 import Bumerak.administrador.repositorios.PerfilRepository;
@@ -48,17 +49,28 @@ public class AuthService {
                 throw new CustomException("El email " + request.email() + " ya está registrado", HttpStatus.CONFLICT);
             }
 
-            // 2. Validar que el rol sea válido para administrador
-            if (!request.roleName().esAdministrador()) {
-                throw new CustomException("El rol " + request.roleName() + " no es válido para registro", HttpStatus.BAD_REQUEST);
+            // ==========================================================
+            // 2. Validar rol (YA ES UN ENUM, no hace falta convertirlo)
+            // ==========================================================
+            TipoRol tipoRol = request.roleName();
+
+            // Si el DTO trae null, lanzamos error
+            if (tipoRol == null) {
+                throw new CustomException("El rol es obligatorio.", HttpStatus.BAD_REQUEST);
             }
+
+            // No permitir que un usuario se registre como Administrador
+            if (tipoRol == TipoRol.ADMINISTRADOR) {
+                throw new CustomException("No puedes registrarte con el rol de Administrador.", HttpStatus.BAD_REQUEST);
+            }
+            // ==========================================================
 
             // 3. Crear el usuario
             Usuarios usuario = Usuarios.builder()
                     .email(request.email())
                     .password(passwordEncoder.encode(request.password()))
                     .nombre(request.nombre())
-                    .rol(request.roleName())
+                    .rol(tipoRol) // <--- Asignamos el Enum directamente
                     .telefono(request.telefono())
                     .fotoPerfil(request.imgUser())
                     .enabled(true)
@@ -178,10 +190,12 @@ public class AuthService {
     // ========== MÉTODOS PRIVADOS ==========
 
     private Grupo crearGrupo(Usuarios administrador, String nombre, String descripcion) {
+        TipoRol rol = administrador.getRol();
+
         Grupo grupo = Grupo.builder()
                 .nombre(nombre)
                 .descripcion(descripcion)
-                .tipo(administrador.getRol().getTipoGrupoAsociado())
+                .tipo(rol != null ? rol.getTipoGrupoAsociado() : null) // <--- Evitamos NullPointer
                 .administrador(administrador)
                 .activo(true)
                 .fechaCreacion(LocalDateTime.now())
@@ -239,7 +253,7 @@ public class AuthService {
                 .id(usuario.getId())
                 .email(usuario.getEmail())
                 .nombre(usuario.getNombre())
-                .rol(usuario.getRol().name())
+                .rol(usuario.getRol().name()) // <--- Devuelve el nombre del Enum (FAMILIA, EMPRESA...)
                 .telefono(usuario.getTelefono())
                 .direccion(usuario.getDireccion())
                 .fotoPerfil(usuario.getFotoPerfil())

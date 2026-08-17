@@ -1,1 +1,170 @@
-<p>login works!</p>
+<!-- Contenedor principal -->
+<div class="login-container">
+  
+  <!-- Muestra errores generales con la nueva sintaxis @if -->
+  @if (error()) {
+    <div class="alert alert-danger">
+      {{ error() }}
+    </div>
+  }
+
+  <!-- ============ FORMULARIO DE LOGIN ============ -->
+  @if (!isRegister()) {
+    <div class="login-card">
+      <h2>Iniciar Sesión</h2>
+      
+      <form [formGroup]="loginForm" (ngSubmit)="login()">
+        
+        <!-- Campo Email -->
+        <div class="form-group">
+          <label for="email">Correo Electrónico</label>
+          <input 
+            type="email" 
+            id="email" 
+            formControlName="email" 
+            placeholder="ejemplo@correo.com"
+            [class.error]="emailControl && emailControl.touched && emailControl.invalid"
+          >
+          <!-- Mensaje de error del getter emailErrors -->
+          @if (emailErrors) {
+            <div class="error-message">
+              {{ emailErrors }}
+            </div>
+          }
+        </div>
+
+        <div class="form-group">
+  <label for="password">Contraseña</label>
+  
+  <div class="input-group-password" style="position: relative; display: flex; align-items: center; width: 100%;">
+    <!-- El input ocupa todo el ancho -->
+    <input 
+      [type]="showPassword() ? 'text' : 'password'" 
+      id="password" 
+      formControlName="password" 
+      placeholder="Tu contraseña"
+      [class.error]="passwordControl && passwordControl.touched && passwordControl.invalid"
+      style="flex: 1; padding-right: 40px; box-sizing: border-box; width: 100%;"
+    >
+    
+    <!-- El botón flota a la derecha, absolutamente separado del input -->
+    <button 
+      type="button" 
+      (click)="togglePasswordVisibility()"
+      style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; z-index: 10;"
+    >
+      <span>{{ showPassword() ? '🙈' : '👁️' }}</span>
+    </button>
+  </div>
+
+  <!-- Mensaje de error -->
+  @if (passwordErrors) {
+    <div class="error-message">
+      {{ passwordErrors }}
+    </div>
+  }
+</div>
+
+        <button type="submit" [disabled]="loginForm.invalid || isLoading()" class="btn-primary">
+          @if (isLoading()) {
+            <span>Iniciando...</span>
+          } @else {
+            <span>Iniciar Sesión</span>
+          }
+        </button>
+
+        <p class="toggle-link">
+          ¿No tienes cuenta? <a href="javascript:void(0)" (click)="mostrarRegistro()">Regístrate</a>
+        </p>
+      </form>
+    </div>
+  }
+
+  <!-- ============ FORMULARIO DE REGISTRO ============ -->
+  @else {
+    <div class="register-card">
+      <h2>Crear Cuenta</h2>
+      
+      <form [formGroup]="usuariosForm" (ngSubmit)="registrar()">
+        
+        <div class="form-group">
+          <label for="nombre">Nombre completo</label>
+          <input type="text" id="nombre" formControlName="nombre" placeholder="Tu nombre">
+          @if (usuariosForm.get('nombre')?.touched && usuariosForm.get('nombre')?.invalid) {
+            <div class="error-message">
+              @if (usuariosForm.get('nombre')?.errors?.['required']) {
+                <span>El nombre es obligatorio</span>
+              }
+              @if (usuariosForm.get('nombre')?.errors?.['minlength']) {
+                <span>Mínimo 3 caracteres</span>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="reg-email">Correo Electrónico</label>
+          <input type="email" id="reg-email" formControlName="email" placeholder="ejemplo@correo.com">
+          @if (usuariosForm.get('email')?.touched && usuariosForm.get('email')?.invalid) {
+            <div class="error-message">
+              @if (usuariosForm.get('email')?.errors?.['required']) {
+                <span>El email es obligatorio</span>
+              }
+              @if (usuariosForm.get('email')?.errors?.['email']) {
+                <span>Email inválido</span>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="reg-password">Contraseña</label>
+          <input [type]="showPassword() ? 'text' : 'password'" id="reg-password" formControlName="password" placeholder="Mínimo 6 caracteres">
+          @if (usuariosForm.get('password')?.touched && usuariosForm.get('password')?.invalid) {
+            <div class="error-message">
+              @if (usuariosForm.get('password')?.errors?.['required']) {
+                <span>Contraseña obligatoria</span>
+              }
+              @if (usuariosForm.get('password')?.errors?.['minlength']) {
+                <span>Mínimo 6 caracteres</span>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="reg-confirm">Confirmar Contraseña</label>
+          <input [type]="showPassword() ? 'text' : 'password'" id="reg-confirm" formControlName="passwordConfirm">
+          @if (usuariosForm.get('passwordConfirm')?.touched && usuariosForm.errors?.['passwordMismatch']) {
+            <div class="error-message">
+              Las contraseñas no coinciden
+            </div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="telefono">Teléfono (Opcional)</label>
+          <input type="tel" id="telefono" formControlName="telefono" placeholder="+34 666 666 666">
+          @if (usuariosForm.get('telefono')?.touched && usuariosForm.get('telefono')?.invalid) {
+            <div class="error-message">
+              Formato inválido (ej. +34666777888)
+            </div>
+          }
+        </div>
+
+        <button type="submit" [disabled]="usuariosForm.invalid || isLoading()" class="btn-primary">
+          @if (isLoading()) {
+            <span>Registrando...</span>
+          } @else {
+            <span>Registrarse</span>
+          }
+        </button>
+
+        <p class="toggle-link">
+          ¿Ya tienes cuenta? <a href="javascript:void(0)" (click)="mostrarLogin()">Inicia sesión</a>
+        </p>
+      </form>
+    </div>
+  }
+
+</div>
