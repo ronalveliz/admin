@@ -1,170 +1,110 @@
-<!-- Contenedor principal -->
-<div class="login-container">
-  
-  <!-- Muestra errores generales con la nueva sintaxis @if -->
-  @if (error()) {
-    <div class="alert alert-danger">
-      {{ error() }}
-    </div>
-  }
+<div class="principal">
+<div class="container" id="container" [class.right-panel-active]="isRegister()">
+  <!-- Login -->
+  <div class="form-container login-container">
+    <form [formGroup]="loginForm" (ngSubmit)="login()">
+      <h1>Inicia sesión aquí</h1>
 
-  <!-- ============ FORMULARIO DE LOGIN ============ -->
-  @if (!isRegister()) {
-    <div class="login-card">
-      <h2>Iniciar Sesión</h2>
-      
-      <form [formGroup]="loginForm" (ngSubmit)="login()">
-        
-        <!-- Campo Email -->
-        <div class="form-group">
-          <label for="email">Correo Electrónico</label>
-          <input 
-            type="email" 
-            id="email" 
-            formControlName="email" 
-            placeholder="ejemplo@correo.com"
-            [class.error]="emailControl && emailControl.touched && emailControl.invalid"
-          >
-          <!-- Mensaje de error del getter emailErrors -->
-          @if (emailErrors) {
-            <div class="error-message">
-              {{ emailErrors }}
-            </div>
-          }
+      <div class="form-control">
+        <input type="email" formControlName="email" placeholder="Correo electrónico" />
+        <span></span>
+        @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+          <small class="error-text">Correo inválido</small>
+        }
+      </div>
+
+      <div class="form-control">
+        <input type="password" formControlName="password" placeholder="Contraseña" />
+        <span></span>
+        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+          <small class="error-text">La contraseña es requerida</small>
+        }
+      </div>
+
+      <div class="content">
+        <div class="checkbox">
+          <input type="checkbox" id="remember" />
+          <label for="remember">Recuérdame</label>
         </div>
+        <div class="pass-link">
+          <a href="#">¿Olvidaste la contraseña?</a>
+        </div>
+      </div>
 
-        <div class="form-group">
-  <label for="password">Contraseña</label>
-  
-  <div class="input-group-password" style="position: relative; display: flex; align-items: center; width: 100%;">
-    <!-- El input ocupa todo el ancho -->
-    <input 
-      [type]="showPassword() ? 'text' : 'password'" 
-      id="password" 
-      formControlName="password" 
-      placeholder="Tu contraseña"
-      [class.error]="passwordControl && passwordControl.touched && passwordControl.invalid"
-      style="flex: 1; padding-right: 40px; box-sizing: border-box; width: 100%;"
-    >
-    
-    <!-- El botón flota a la derecha, absolutamente separado del input -->
-    <button 
-      type="button" 
-      (click)="togglePasswordVisibility()"
-      style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; z-index: 10;"
-    >
-      <span>{{ showPassword() ? '🙈' : '👁️' }}</span>
-    </button>
+      <button type="submit" [disabled]="loginForm.invalid">Iniciar sesión</button>
+
+      <span>O usa tu cuenta</span>
+      <div class="social-container">
+        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#"><i class="fa-brands fa-google"></i></a>
+        <a href="#"><i class="fa-brands fa-tiktok"></i></a>
+      </div>
+    </form>
   </div>
 
-  <!-- Mensaje de error -->
-  @if (passwordErrors) {
-    <div class="error-message">
-      {{ passwordErrors }}
+  <!-- Registro -->
+  <div class="form-container register-container">
+    <form [formGroup]="usuariosForm" (ngSubmit)="registrar()">
+      <h1>Regístrate aquí</h1>
+
+      <div class="form-control">
+        <input type="text" formControlName="nombre" placeholder="Nombre completo" />
+        <span></span>
+      </div>
+
+      <div class="form-control">
+        <input type="email" formControlName="email" placeholder="Correo electrónico" />
+        <span></span>
+      </div>
+
+      <div class="form-control">
+        <input type="password" formControlName="password" placeholder="Contraseña" />
+        <span></span>
+      </div>
+
+      <div class="form-control">
+        <input type="password" formControlName="passwordConfirm" placeholder="Confirmar contraseña" />
+        <span></span>
+        @if (usuariosForm.hasError('passwordMismatch') && usuariosForm.get('passwordConfirm')?.touched) {
+          <small class="error-text">Las contraseñas no coinciden</small>
+        }
+      </div>
+
+      <div class="form-control">
+        <input type="text" formControlName="telefono" placeholder="Teléfono (opcional)" />
+        <span></span>
+      </div>
+
+      <button type="submit" [disabled]="usuariosForm.invalid">Registrar</button>
+
+      <span>O usa tu cuenta</span>
+      <div class="social-container">
+        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#"><i class="fa-brands fa-google"></i></a>
+        <a href="#"><i class="fa-brands fa-tiktok"></i></a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay-container">
+    <div class="overlay">
+      <div class="overlay-panel overlay-left">
+        <h1>Hola amigos</h1>
+        <p>Si tienes una cuenta, inicia sesión aquí y diviértete</p>
+        <button class="ghost" (click)="mostrarLogin()">
+          <i class="fa-solid fa-arrow-left"></i> Iniciar sesión
+        </button>
+      </div>
+
+      <div class="overlay-panel overlay-right">
+        <h1>Comienza tu viaje ahora</h1>
+        <p>Si aún no tienes una cuenta, únete a nosotros</p>
+        <button class="ghost" (click)="mostrarRegistro()">
+          Registrarse <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
     </div>
-  }
+  </div>
 </div>
-
-        <button type="submit" [disabled]="loginForm.invalid || isLoading()" class="btn-primary">
-          @if (isLoading()) {
-            <span>Iniciando...</span>
-          } @else {
-            <span>Iniciar Sesión</span>
-          }
-        </button>
-
-        <p class="toggle-link">
-          ¿No tienes cuenta? <a href="javascript:void(0)" (click)="mostrarRegistro()">Regístrate</a>
-        </p>
-      </form>
-    </div>
-  }
-
-  <!-- ============ FORMULARIO DE REGISTRO ============ -->
-  @else {
-    <div class="register-card">
-      <h2>Crear Cuenta</h2>
-      
-      <form [formGroup]="usuariosForm" (ngSubmit)="registrar()">
-        
-        <div class="form-group">
-          <label for="nombre">Nombre completo</label>
-          <input type="text" id="nombre" formControlName="nombre" placeholder="Tu nombre">
-          @if (usuariosForm.get('nombre')?.touched && usuariosForm.get('nombre')?.invalid) {
-            <div class="error-message">
-              @if (usuariosForm.get('nombre')?.errors?.['required']) {
-                <span>El nombre es obligatorio</span>
-              }
-              @if (usuariosForm.get('nombre')?.errors?.['minlength']) {
-                <span>Mínimo 3 caracteres</span>
-              }
-            </div>
-          }
-        </div>
-
-        <div class="form-group">
-          <label for="reg-email">Correo Electrónico</label>
-          <input type="email" id="reg-email" formControlName="email" placeholder="ejemplo@correo.com">
-          @if (usuariosForm.get('email')?.touched && usuariosForm.get('email')?.invalid) {
-            <div class="error-message">
-              @if (usuariosForm.get('email')?.errors?.['required']) {
-                <span>El email es obligatorio</span>
-              }
-              @if (usuariosForm.get('email')?.errors?.['email']) {
-                <span>Email inválido</span>
-              }
-            </div>
-          }
-        </div>
-
-        <div class="form-group">
-          <label for="reg-password">Contraseña</label>
-          <input [type]="showPassword() ? 'text' : 'password'" id="reg-password" formControlName="password" placeholder="Mínimo 6 caracteres">
-          @if (usuariosForm.get('password')?.touched && usuariosForm.get('password')?.invalid) {
-            <div class="error-message">
-              @if (usuariosForm.get('password')?.errors?.['required']) {
-                <span>Contraseña obligatoria</span>
-              }
-              @if (usuariosForm.get('password')?.errors?.['minlength']) {
-                <span>Mínimo 6 caracteres</span>
-              }
-            </div>
-          }
-        </div>
-
-        <div class="form-group">
-          <label for="reg-confirm">Confirmar Contraseña</label>
-          <input [type]="showPassword() ? 'text' : 'password'" id="reg-confirm" formControlName="passwordConfirm">
-          @if (usuariosForm.get('passwordConfirm')?.touched && usuariosForm.errors?.['passwordMismatch']) {
-            <div class="error-message">
-              Las contraseñas no coinciden
-            </div>
-          }
-        </div>
-
-        <div class="form-group">
-          <label for="telefono">Teléfono (Opcional)</label>
-          <input type="tel" id="telefono" formControlName="telefono" placeholder="+34 666 666 666">
-          @if (usuariosForm.get('telefono')?.touched && usuariosForm.get('telefono')?.invalid) {
-            <div class="error-message">
-              Formato inválido (ej. +34666777888)
-            </div>
-          }
-        </div>
-
-        <button type="submit" [disabled]="usuariosForm.invalid || isLoading()" class="btn-primary">
-          @if (isLoading()) {
-            <span>Registrando...</span>
-          } @else {
-            <span>Registrarse</span>
-          }
-        </button>
-
-        <p class="toggle-link">
-          ¿Ya tienes cuenta? <a href="javascript:void(0)" (click)="mostrarLogin()">Inicia sesión</a>
-        </p>
-      </form>
-    </div>
-  }
-
 </div>

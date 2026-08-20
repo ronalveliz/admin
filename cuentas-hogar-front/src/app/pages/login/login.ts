@@ -11,6 +11,9 @@ import { LoginRequest } from '../../dto/LoginRequest.dto';
   styleUrl: './login.css',
 })
 export class LoginComponent implements OnInit {
+
+    isLogin = signal(true); // true = login, false = registro
+
     // ========== INYECCIÓN ==========
     private fb = inject(FormBuilder);
     private authService = inject(AuthService);
@@ -63,7 +66,7 @@ export class LoginComponent implements OnInit {
         if (this.authService.isAuthenticated()) {
             this.router.navigate(['/home']);
         }
-        
+
         // CORREGIDO: Forzamos la validación inicial al cargar el componente
         this.loginForm.markAllAsTouched();
     }
@@ -72,7 +75,7 @@ export class LoginComponent implements OnInit {
     passwordMatchValidator(group: FormGroup): { [key: string]: boolean } | null {
         const password = group.get('password')?.value;
         const confirm = group.get('passwordConfirm')?.value;
-        if (!password || !confirm) return null; 
+        if (!password || !confirm) return null;
         return password === confirm ? null : { passwordMismatch: true };
     }
 
@@ -80,6 +83,11 @@ export class LoginComponent implements OnInit {
     mostrarRegistro(): void { this.isRegister.set(true); }
     mostrarLogin(): void { this.isRegister.set(false); }
     togglePasswordVisibility(): void { this.showPassword.update(value => !value); }
+
+    // ========== ⭐ NUEVO MÉTODO: TOGGLE ==========
+  togglePanel(): void {
+    this.isRegister.update(val => !val);
+  }
 
     // ========== LOGIN ==========
     login(): void {

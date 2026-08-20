@@ -1,388 +1,574 @@
-/* src/app/pages/login/login.component.css */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
 
-/* ========== CONTENEDOR PRINCIPAL ========== */
-.container0 {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 1rem;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
+/* ========== CONTENEDOR PRINCIPAL ========== */
+.principal{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Poppins", sans-serif;
+}
 .container {
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    position: relative;
-    overflow: hidden;
-    width: 900px;
-    max-width: 100%;
-    min-height: 600px;
-    display: flex;
-    transition: all 0.6s ease-in-out;
+  border-radius: 25px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 0px 10px rgba(0, 0, 0, 0.22);
+  position: relative;
+  overflow: hidden;
+  width: 768px;
+  max-width: 100%;
+  height: 550px;
+  background: white;
+  display: flex;
 }
 
 /* ========== FORMULARIOS ========== */
 .form-container {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    transition: all 0.6s ease-in-out;
-    padding: 2.5rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 50%;
+  position: absolute;
+  top: 0;
+  height: 100%;
+  transition: all 0.6s ease-in-out;
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
 }
 
 .login-container {
-    left: 0;
-    z-index: 2;
+  left: 0;
+  z-index: 2;
 }
 
 .container.right-panel-active .login-container {
-    transform: translateX(100%);
+  transform: translateX(100%);
 }
 
-/* ========== REGISTRO ========== */
 .register-container {
-    left: 0;
-    opacity: 0;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 50%;
+  left: 0;
+  opacity: 0;
+  z-index: 1;
 }
 
 .container.right-panel-active .register-container {
-    transform: translateX(100%);
-    opacity: 1;
-    z-index: 5;
-    animation: show 0.6s;
+  transform: translateX(100%);
+  opacity: 1;
+  z-index: 5;
+  animation: show 0.6s;
 }
 
 @keyframes show {
-    0%,
-    49.99% {
-        opacity: 0;
-        z-index: 1;
-    }
-    50%,
-    100% {
-        opacity: 1;
-        z-index: 5;
-    }
+  0%,
+  49.99% {
+    opacity: 0;
+    z-index: 1;
+  }
+  50%,
+  100% {
+    opacity: 1;
+    z-index: 5;
+  }
 }
 
 /* ========== FORMULARIOS DENTRO ========== */
 form {
-    background: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 0 2rem;
-    height: 100%;
-    width: 100%;
-    text-align: center;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 30px;
+  height: 100%;
+  width: 100%;
+  text-align: center;
 }
 
 form h1 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-    color: #2c3e50;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -1.5px;
+  margin: 0 0 8px 0;
+  color: #2c3e50;
 }
 
+form > span {
+  color: #7f8c8d;
+  font-size: 13px;
+  margin: 8px 0 5px;
+}
+
+/* ========== INPUTS ========== */
 .form-control {
-    width: 100%;
-    margin: 0.5rem 0;
-    position: relative;
+  width: 100%;
+  position: relative;
+  margin-bottom: 00px;
+  text-align: left;
 }
 
 .form-control input {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: all 0.3s;
-    background: #fafafa;
-    box-sizing: border-box;
+  background-color: #fff;
+  outline: none;
+  border: none;
+  padding: 10px 0;
+  margin: 5px 0;
+  width: 100%;
+  transition: 0.3s ease;
+  font-size: 14px;
+  font-family: "Poppins", sans-serif;
 }
 
 .form-control input:focus {
-    outline: none;
-    border-color: #667eea;
-    background: white;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+  
 }
 
-.form-control input.error {
-    border-color: #e74c3c;
-    background: #fff5f5;
+.form-control input.ng-invalid.ng-touched {
+  border-bottom: 2px solid #e74c3c;
 }
 
-.form-control .error-text {
-    color: #e74c3c;
-    font-size: 0.75rem;
-    text-align: left;
-    display: block;
-    margin-top: 0.25rem;
+.form-control span {
+  position: absolute;
+  border-bottom: 3px solid #4bb6b7;
+  left: 0;
+  bottom: 8px;
+  width: 0%;
+  transition: all 0.3s ease;
 }
 
-/* ========== OVERLAY ========== */
-.overlay-container {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 50%;
-    height: 100%;
-    overflow: hidden;
-    transition: transform 0.6s ease-in-out;
-    z-index: 100;
+.form-control input:focus ~ span {
+  width: 100%;
 }
 
-.container.right-panel-active .overlay-container {
-    transform: translateX(-100%);
-}
-
-.overlay {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    position: relative;
-    left: -100%;
-    height: 100%;
-    width: 200%;
-    transform: translateX(0);
-    transition: transform 0.6s ease-in-out;
-}
-
-.container.right-panel-active .overlay {
-    transform: translateX(50%);
-}
-
-.overlay-panel {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    top: 0;
-    height: 100%;
-    width: 50%;
-    padding: 0 2.5rem;
-    transform: translateX(0);
-    transition: transform 0.6s ease-in-out;
-}
-
-.overlay-left {
-    transform: translateX(-20%);
-}
-
-.container.right-panel-active .overlay-left {
-    transform: translateX(0);
-}
-
-.overlay-right {
-    right: 0;
-    transform: translateX(0);
-}
-
-.container.right-panel-active .overlay-right {
-    transform: translateX(20%);
-}
-
-.overlay-panel h1 {
-    font-size: 2.2rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    line-height: 1.2;
-}
-
-.overlay-panel p {
-    font-size: 1rem;
-    margin-bottom: 1.5rem;
-    opacity: 0.9;
-    max-width: 300px;
-}
-
-/* ========== BOTONES ========== */
-button {
-    border-radius: 30px;
-    border: 1px solid #667eea;
-    background: #667eea;
-    color: white;
-    font-size: 1rem;
-    font-weight: 600;
-    padding: 0.75rem 2.5rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    margin-top: 0.5rem;
-}
-
-button:hover:not(:disabled) {
-    background: #5a6fd6;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-}
-
-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-}
-
-button.ghost {
-    background: transparent;
-    border-color: white;
-    color: white;
-}
-
-button.ghost:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: white;
-}
-
-/* ========== SOCIAL ========== */
-.social-container {
-    display: flex;
-    gap: 0.75rem;
-    margin: 1rem 0;
-}
-
-.social {
-    border: 1px solid #ddd;
-    border-radius: 50%;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    width: 40px;
-    height: 40px;
-    color: #333;
-    text-decoration: none;
-    transition: all 0.3s;
-}
-
-.social:hover {
-    background: #667eea;
-    color: white;
-    border-color: #667eea;
+.error-text {
+  color: #e74c3c;
+  font-size: 11px;
+  display: block;
+  margin-top: 2px;
+  text-align: left;
+  min-height: 16px;
 }
 
 /* ========== CONTENIDO ADICIONAL ========== */
 .content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    font-size: 0.85rem;
-    margin: 0.5rem 0;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 0;
+  margin: 5px 0;
 }
 
 .content .checkbox {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.content input[type="checkbox"] {
+  accent-color: #333;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.content label {
+  font-size: 13px;
+  user-select: none;
+  cursor: pointer;
+  margin: 0;
+  color: #555;
 }
 
 .content .pass-link a {
-    color: #667eea;
-    text-decoration: none;
+  color: #333;
+  font-size: 13px;
+  margin: 0;
+  text-decoration: none;
+  transition: 0.3s ease-in-out;
 }
 
 .content .pass-link a:hover {
-    text-decoration: underline;
+  color: #4bb6b7;
+  text-decoration: underline;
 }
 
-span {
-    color: #7f8c8d;
-    font-size: 0.9rem;
-    margin: 0.5rem 0;
+/* ========== BOTONES ========== */
+button {
+  position: relative;
+  border-radius: 20px;
+  border: 1px solid #686c78;
+  background-color: #686c78;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  margin: 12px 0 8px;
+  padding: 12px 60px;
+  letter-spacing: 1px;
+  text-transform: capitalize;
+  transition: 0.3s ease-in-out;
+  cursor: pointer;
+  width: 100%;
+  max-width: 280px;
+  font-family: "Poppins", sans-serif;
 }
 
-/* ========== RESPONSIVE ========== */
-@media (max-width: 768px) {
-    .container {
-        min-height: 650px;
-        width: 100%;
-        flex-direction: column;
-    }
-
-    .form-container {
-        width: 100%;
-        position: relative;
-        height: 50%;
-        padding: 1.5rem;
-    }
-
-    .login-container {
-        left: 0;
-        top: 0;
-    }
-
-    .register-container {
-        left: 0;
-        top: 0;
-        opacity: 0;
-    }
-
-    .container.right-panel-active .login-container {
-        transform: translateY(100%);
-    }
-
-    .container.right-panel-active .register-container {
-        transform: translateY(0);
-        opacity: 1;
-    }
-
-    .overlay-container {
-        display: none;
-    }
-
-    form {
-        padding: 0 1rem;
-    }
-
-    form h1 {
-        font-size: 1.5rem;
-    }
+button:hover:not(:disabled) {
+  letter-spacing: 3px;
+  background-color: #555a66;
 }
 
-/* ========== ERROR MESSAGE ========== */
-.error-message {
-    background: #fee;
-    color: #c0392b;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    margin: 0.5rem 0;
-    font-size: 0.85rem;
-    border: 1px solid #fcc;
-    width: 100%;
-    text-align: center;
+button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+button:focus {
+  outline: none;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+button.ghost {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 2px solid #fff;
+  color: #fff;
+  padding: 12px 35px;
+  width: auto;
+  min-width: 180px;
+  margin: 8px 0;
+  font-size: 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+button.ghost:hover {
+  background-color: rgba(219, 25, 25, 0.3);
+  letter-spacing: 2px;
+}
+
+
+
+/* ========== SOCIAL ========== */
+.social-container {
+  margin: 8px 0 5px;
+  display: flex;
+  gap: 8px;
+}
+
+.social-container a {
+  border: 1px solid #dddddd;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  height: 36px;
+  width: 36px;
+  transition: 0.3s ease-in-out;
+  color: #555;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.social-container a:hover {
+  border: 1px solid #4bb6b7;
+  background: #4bb6b7;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* ========== SWITCH LINK ========== */
+.switch-link {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #7f8c8d;
+}
+
+.switch-link a {
+  color: #4bb6b7;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 0;
+  text-decoration: none;
+  transition: 0.3s ease-in-out;
+}
+
+.switch-link a:hover {
+  text-decoration: underline;
+  color: #3a9b9c;
+}
+
+/* ========== OVERLAY CON IMAGEN ========== */
+.overlay-container {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 0.6s ease-in-out;
+  z-index: 100;
+}
+
+.container.right-panel-active .overlay-container {
+  transform: translate(-100%);
+}
+
+.overlay {
+  background-image: url("https://images.unsplash.com/photo-1621360841013-c7683c659ec6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1932&q=80");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+  position: relative;
+  left: -100%;
+  height: 100%;
+  width: 200%;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
+}
+
+.overlay::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    rgba(46, 94, 109, 0.5) 40%,
+    rgba(46, 94, 109, 0.1)
+  );
+}
+
+.container.right-panel-active .overlay {
+  transform: translateX(50%);
+}
+
+/* ========== PANELES DEL OVERLAY ========== */
+.overlay-panel {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 40px;
+  text-align: center;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
+}
+
+.overlay-left {
+  transform: translateX(-20%);
+}
+
+.container.right-panel-active .overlay-left {
+  transform: translateX(0);
+}
+
+.overlay-right {
+  right: 0;
+  transform: translateX(0);
+}
+
+.container.right-panel-active .overlay-right {
+  transform: translateX(20%);
+}
+
+.overlay-panel h1 {
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 42px;
+  margin: 0;
+  text-shadow: 0 0 10px rgba(16, 64, 74, 0.5);
+  color: white;
+}
+
+.overlay-panel p {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 0.5px;
+  margin: 15px 0 20px;
+  text-shadow: 0 0 10px rgba(16, 64, 74, 0.5);
+  color: white;
+  max-width: 280px;
+}
+
+/* ========== ALERTA ========== */
+.alert {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  animation: slideDown 0.3s ease-out;
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+}
+
+.alert-danger {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 /* ========== SPINNER ========== */
 .spinner {
-    display: inline-block;
-    width: 1rem;
-    height: 1rem;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: white;
-    animation: spin 0.8s ease-in-out infinite;
-    margin-right: 0.5rem;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.8s ease-in-out infinite;
+  margin-right: 8px;
 }
 
 @keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .container {
+    height: 600px;
+    width: 100%;
+    border-radius: 15px;
+    margin: 10px;
+  }
+
+  .form-container {
+    width: 100%;
+    position: relative;
+    height: 50%;
+    padding: 20px;
+  }
+
+  .login-container {
+    left: 0;
+    top: 0;
+  }
+
+  .register-container {
+    left: 0;
+    top: 0;
+    opacity: 0;
+  }
+
+  .container.right-panel-active .login-container {
+    transform: translateY(100%);
+  }
+
+  .container.right-panel-active .register-container {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .overlay-container {
+    display: none;
+  }
+
+  form {
+    padding: 0 20px;
+  }
+
+  form h1 {
+    font-size: 22px;
+  }
+
+  button {
+    padding: 10px 40px;
+    max-width: 100%;
+  }
+
+  .content {
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+  }
+
+  .social-container a {
+    height: 32px;
+    width: 32px;
+    font-size: 14px;
+  }
+
+  .switch-link {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    height: 650px;
+    border-radius: 10px;
+    margin: 5px;
+  }
+
+  .form-container {
+    padding: 15px;
+  }
+
+  form h1 {
+    font-size: 20px;
+  }
+
+  .form-control input {
+    font-size: 13px;
+    padding: 8px 0;
+  }
+
+  button {
+    font-size: 13px;
+    padding: 10px 30px;
+  }
+
+  .overlay-panel h1 {
+    font-size: 28px;
+    line-height: 32px;
+  }
+
+  .overlay-panel p {
+    font-size: 13px;
+    max-width: 200px;
+  }
+
+  .social-container a {
+    height: 30px;
+    width: 30px;
+    font-size: 13px;
+  }
 }
