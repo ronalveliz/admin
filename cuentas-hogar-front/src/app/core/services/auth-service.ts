@@ -9,6 +9,9 @@ import { RegistroRequest } from '../../dto/RegistroRequest.dto';
     providedIn: 'root'
 })
 export class AuthService {
+  removeToken() {
+    throw new Error('Method not implemented.');
+  }
     
     private readonly API_URL = 'http://localhost:8080/api/auth';
     private tokenKey = 'auth_token';
@@ -16,6 +19,7 @@ export class AuthService {
 
     private currentUserSubject = new BehaviorSubject<AuthResponse | null>(null);
     public currentUser$ = this.currentUserSubject.asObservable();
+  isLoggedin: any;
 
     constructor(private http: HttpClient) {
         this.loadStoredUser();
