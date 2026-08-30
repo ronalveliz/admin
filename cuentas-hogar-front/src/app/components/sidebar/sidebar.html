@@ -1,0 +1,44 @@
+@if(authService.isAuthenticated()){
+<div class="d-flex flex-column vh-100 bg-dark text-white p-3" style="width: 250px; position: fixed;">
+  <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+    <span class="fs-4"><i class="fa-solid fa-building-columns me-2"></i>AdminEcon</span>
+  </a>
+  <hr>
+  
+  <ul class="nav nav-pills flex-column mb-auto">
+    <li class="nav-item">
+      <a href="#" class="nav-link text-white active bg-primary">
+        <i class="fa-solid fa-house me-2"></i>Dashboard
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="#" class="nav-link text-white">
+        <i class="fa-solid fa-chart-line me-2"></i>Ingresos
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="#" class="nav-link text-white">
+        <i class="fa-solid fa-chart-pie me-2"></i>Gastos
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="#" class="nav-link text-white">
+        <i class="fa-solid fa-file-invoice-dollar me-2"></i>Presupuesto
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="#" class="nav-link text-white">
+        <i class="fa-solid fa-users me-2"></i>Proveedores
+      </a>
+    </li>
+  </ul>
+  
+  <hr>
+  <div class="dropdown">
+    <span class="text-secondary small">{{ authService.getCurrentUser()?.usuario?.email }}</span>
+    <button (click)="logout()" class="btn btn-danger btn-sm w-100 mt-2">
+      <i class="fa-solid fa-right-from-bracket me-2"></i>Cerrar Sesión
+    </button>
+  </div>
+</div>
+}

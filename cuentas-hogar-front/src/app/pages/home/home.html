@@ -1,1 +1,188 @@
-<p>home works!</p>
+<div class="d-flex">
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Contenido principal -->
+  <div class="flex-grow-1 p-4" style="margin-left: 250px; background-color: #f8f9fa; min-height: 100vh;">
+    
+    <!-- Cabecera -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="fw-bold">Dashboard</h2>
+        <p class="text-muted">Resumen general de la situación económica</p>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <div class="bg-white p-2 rounded-pill shadow-sm">
+          <input type="text" class="form-control form-control-sm border-0" placeholder="Buscar...">
+        </div>
+        <div class="d-flex align-items-center gap-2 bg-white p-2 rounded-pill shadow-sm">
+          <i class="fa-solid fa-bell text-primary"></i>
+          <img src="https://via.placeholder.com/40" class="rounded-circle" alt="User" style="width: 35px; height: 35px;">
+          <div>
+            <strong class="d-block" style="font-size: 12px;">{{ authService.getCurrentUser()?.usuario?.email }}</strong>
+            <small class="text-muted" style="font-size: 11px;">Admin</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarjetas de Resumen (Row 1) -->
+    <div class="row g-4 mb-4">
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body d-flex align-items-center gap-3">
+            <div class="bg-success-subtle rounded-circle p-3 text-success">
+              <i class="fa-solid fa-arrow-trend-up fs-4"></i>
+            </div>
+            <div>
+              <small class="text-muted d-block">Ingresos Totales</small>
+              <h4 class="fw-bold mb-0">$1,250,000</h4>
+              <small class="text-success">+12.5% vs mes anterior</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body d-flex align-items-center gap-3">
+            <div class="bg-danger-subtle rounded-circle p-3 text-danger">
+              <i class="fa-solid fa-arrow-trend-down fs-4"></i>
+            </div>
+            <div>
+              <small class="text-muted d-block">Gastos Totales</small>
+              <h4 class="fw-bold mb-0">$780,500</h4>
+              <small class="text-danger">+8.3% vs mes anterior</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body d-flex align-items-center gap-3">
+            <div class="bg-primary-subtle rounded-circle p-3 text-primary">
+              <i class="fa-solid fa-scale-balanced fs-4"></i>
+            </div>
+            <div>
+              <small class="text-muted d-block">Balance Neto</small>
+              <h4 class="fw-bold mb-0">$469,500</h4>
+              <small class="text-primary">+15.7% vs mes anterior</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body d-flex align-items-center gap-3">
+            <div class="bg-info-subtle rounded-circle p-3 text-info">
+              <i class="fa-solid fa-percent fs-4"></i>
+            </div>
+            <div>
+              <small class="text-muted d-block">Presupuesto Ejecutado</small>
+              <h4 class="fw-bold mb-0">68%</h4>
+              <small class="text-muted">68% del presupuesto anual</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráficos y Tablas (Row 2) -->
+    <div class="row g-4 mb-4">
+      <!-- Gráfico de Líneas (Simulado con card) -->
+      <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Ingresos vs Gastos</h5>
+            <select class="form-select form-select-sm w-auto">
+              <option>Este año</option>
+              <option>Mes anterior</option>
+            </select>
+          </div>
+          <div class="card-body">
+            <!-- Aquí iría tu librería de gráficos (Chart.js, Highcharts, etc.) -->
+            <div class="text-center text-muted py-5">
+              <i class="fa-solid fa-chart-line fs-1 mb-3"></i>
+              <p class="mb-0">(Aquí se renderizará el gráfico real con Chart.js)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráfico de Donut (Simulado) -->
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0">
+            <h5 class="mb-0">Distribución de Gastos</h5>
+          </div>
+          <div class="card-body">
+            <!-- Aquí iría el gráfico de torta -->
+            <div class="text-center text-muted py-5">
+              <i class="fa-solid fa-chart-pie fs-1 mb-3"></i>
+              <p class="mb-0">(Aquí se renderizará el donut real)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de Transacciones (Row 3) -->
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0 d-flex justify-content-between">
+            <h5 class="mb-0">Transacciones Recientes</h5>
+            <a href="#" class="text-primary text-decoration-none small">Ver todas</a>
+          </div>
+          <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+              <tbody>
+                <tr>
+                  <td><i class="fa-solid fa-circle text-success me-2" style="font-size: 8px;"></i> 18/05/2024</td>
+                  <td>Ingreso por Ventas</td>
+                  <td class="text-success fw-bold text-end">+$25,000</td>
+                </tr>
+                <tr>
+                  <td><i class="fa-solid fa-circle text-danger me-2" style="font-size: 8px;"></i> 14/05/2024</td>
+                  <td>Pago a Proveedor</td>
+                  <td class="text-danger fw-bold text-end">-$8,500</td>
+                </tr>
+                <tr>
+                  <td><i class="fa-solid fa-circle text-danger me-2" style="font-size: 8px;"></i> 13/05/2024</td>
+                  <td>Servicio Profesional</td>
+                  <td class="text-danger fw-bold text-end">-$5,800</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Presupuesto -->
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0">
+            <h5 class="mb-0">Presupuesto Anual</h5>
+          </div>
+          <div class="card-body">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Presupuesto Total</span>
+              <strong>$2,500,000</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Ejecutado</span>
+              <strong>$1,700,000</strong>
+            </div>
+            <div class="progress" style="height: 10px;">
+              <div class="progress-bar bg-primary" role="progressbar" style="width: 68%" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <small class="text-muted d-block mt-2">68% del presupuesto anual</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
