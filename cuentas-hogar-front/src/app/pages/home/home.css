@@ -1,0 +1,231 @@
+/* src/app/pages/home/home.component.css */
+
+/* ========== CONTENEDOR PRINCIPAL ========== */
+.home-wrapper {
+    padding: 1.5rem;
+    min-height: 100vh;
+    background: #f0f2f5;
+}
+
+/* ========== LOADING ========== */
+.loading-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+}
+
+/* ========== HEADER ========== */
+.greeting {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0;
+}
+
+.subtitle {
+    color: #6c757d;
+    margin: 0.25rem 0 0 0;
+    font-size: 0.95rem;
+}
+
+.btn-refresh {
+    width: 38px;
+    height: 38px;
+    border: 1px solid #e9ecef;
+    background: white;
+    border-radius: 50%;
+    color: #667eea;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-refresh:hover {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+    transform: rotate(180deg);
+}
+
+/* ========== USER BADGE ========== */
+.user-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.2rem 0.8rem 0.2rem 0.2rem;
+    background: white;
+    border-radius: 50px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.user-badge .avatar {
+    width: 34px;
+    height: 34px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.user-badge .user-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.user-badge .user-text strong {
+    font-size: 0.85rem;
+    color: #1a1a2e;
+}
+
+.user-badge .user-text small {
+    font-size: 0.65rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* ========== TARJETAS DE RESUMEN ========== */
+.card-summary {
+    background: white;
+    border-radius: 16px;
+    padding: 1.25rem 1.25rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+    height: 100%;
+    border-top: 4px solid transparent;
+}
+
+.card-summary:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.card-summary.income { border-top-color: #28a745; }
+.card-summary.expense { border-top-color: #dc3545; }
+.card-summary.balance { border-top-color: #667eea; }
+.card-summary.budget { border-top-color: #ffc107; }
+
+.card-summary .card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.income .card-icon { background: rgba(40, 167, 69, 0.12); color: #28a745; }
+.expense .card-icon { background: rgba(220, 53, 69, 0.12); color: #dc3545; }
+.balance .card-icon { background: rgba(102, 126, 234, 0.12); color: #667eea; }
+.budget .card-icon { background: rgba(255, 193, 7, 0.12); color: #ffc107; }
+
+.card-summary .card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.card-summary .card-label {
+    font-size: 0.7rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.card-summary h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0.1rem 0 0.05rem;
+}
+
+.card-summary h3.positive { color: #28a745; }
+.card-summary h3.negative { color: #dc3545; }
+
+.card-summary .trend {
+    font-size: 0.7rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.card-summary .trend.positive { color: #28a745; }
+.card-summary .trend.negative { color: #dc3545; }
+
+/* ========== PROGRESS BAR ========== */
+.progress-custom {
+    width: 100%;
+    height: 5px;
+    background: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0.25rem 0 0.15rem;
+}
+
+.progress-custom .progress-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transition: width 1.5s ease;
+}
+
+.card-summary small {
+    font-size: 0.7rem;
+    color: #6c757d;
+}
+
+/* ========== GRÁFICOS ========== */
+canvas {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.card-body {
+    min-height: 250px;
+}
+
+.card {
+    border-radius: 16px !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+    .home-wrapper {
+        padding: 1rem;
+    }
+
+    .greeting {
+        font-size: 1.2rem;
+    }
+
+    .card-summary h3 {
+        font-size: 1.1rem;
+    }
+
+    .card-body {
+        min-height: 200px;
+    }
+}

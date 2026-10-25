@@ -21,7 +21,7 @@ export const routes: Routes = [
     },
     {
         path: 'home',
-        loadComponent: () => import('./pages/home/home').then(m => m.Home),
+        loadComponent: () => import('./pages/home/home').then(m => m.HomeComponent),
         canActivate: [authGuard]
     },
     {
@@ -31,22 +31,22 @@ export const routes: Routes = [
             {
                 path: '',
                 loadComponent: () => import('./pages/perfiles/perfil-list/perfil-list')
-                    .then(m => m.PerfilList)
+                    .then(m => m.PerfilListComponent)
             },
             {
                 path: 'nuevo',
                 loadComponent: () => import('./pages/perfiles/perfil-form/perfil-form')
-                    .then(m => m.PerfilForm)
+                    .then(m => m.PerfilFormComponent)
             },
             {
                 path: ':id',
                 loadComponent: () => import('./pages/perfiles/perfil-form/perfil-form')
-                    .then(m => m.PerfilForm)
+                    .then(m => m.PerfilFormComponent)
             },
             {
                 path: ':id/editar',
                 loadComponent: () => import('./pages/perfiles/perfil-form/perfil-form')
-                    .then(m => m.PerfilForm)
+                    .then(m => m.PerfilFormComponent)
             }
         ]
     },

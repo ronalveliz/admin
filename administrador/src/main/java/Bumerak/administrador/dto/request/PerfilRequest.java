@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -25,7 +26,7 @@ public class PerfilRequest {
     private String telefono;
     private String direccion;
     private String fotoPerfil;
-    private LocalDateTime fechaNacimiento;
+    private LocalDate fechaNacimiento;
 
     @NotNull(message = "El tipo de perfil es obligatorio")
     private TipoPerfil tipo;

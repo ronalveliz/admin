@@ -1,4 +1,8 @@
-<app-sidebar></app-sidebar>
-<main>
-    <router-outlet></router-outlet>
-</main>
+<div class="app-container">
+    @if (isAuthenticated()) {
+        <app-sidebar></app-sidebar>
+    }
+    <main class="main-content">
+        <router-outlet></router-outlet>  <!-- ← Aquí se renderizan las páginas -->
+    </main>
+</div>

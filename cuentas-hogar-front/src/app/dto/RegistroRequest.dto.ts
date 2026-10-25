@@ -1,10 +1,7 @@
 export interface RegistroRequest {
     email: string;
-    password: string;
-    nombre: string;
-    telefono: string;
-    roleName: string;  // FAMILIA, EMPRESA, ADMINISTRADOR
-    imgUser?: string;
+    password: string; 
+    telefono: string;// FAMILIA, EMPRESA, ADMINISTRADOR
     nombreGrupo?: string;
-    descripcionGrupo?: string;
+    
 }

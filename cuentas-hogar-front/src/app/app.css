@@ -1,0 +1,31 @@
+/* src/app/app.component.css */
+
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1;
+    margin-left: 280px;
+    min-height: 100vh;
+    background: #f0f2f5;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Cuando el sidebar está colapsado */
+.sidebar-collapsed .main-content {
+    margin-left: 72px;
+}
+
+/* Cuando NO hay sidebar (páginas públicas como login) */
+.main-content.sidebar-hidden {
+    margin-left: 0;
+}
+
+/* Responsive: en móvil el sidebar se oculta */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+    }
+}

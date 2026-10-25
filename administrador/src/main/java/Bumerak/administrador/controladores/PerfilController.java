@@ -15,8 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -31,8 +33,6 @@ public class PerfilController {
 
     /**
      * Crear un nuevo perfil
-     * POST /api/perfiles
-     * Solo administradores pueden crear perfiles
      */
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ROLE_ADMINISTRADOR', 'ROLE_FAMILIA', 'ROLE_EMPRESA')")
@@ -42,17 +42,15 @@ public class PerfilController {
 
         log.info("📝 Creando perfil para administrador: {}", usuario.getEmail());
 
-        // Validar que el usuario sea administrador de perfiles
         if (!usuario.esAdministradorDePerfiles()) {
             throw new CustomException("Solo los administradores pueden crear perfiles", HttpStatus.FORBIDDEN);
         }
 
-        // Determinar si el perfil tendrá acceso independiente
         boolean accesoIndependiente = request.getTipo() == TipoPerfil.MIEMBRO ||
                 request.getTipo() == TipoPerfil.EMPLEADO;
 
         Perfil perfil = perfilService.crearPerfil(request, usuario.getId(), accesoIndependiente);
-
+        log.info("📥 Tipo recibido del frontend: {}", request.getTipo());
         log.info("✅ Perfil creado: {} - Acceso independiente: {}",
                 perfil.getNombreCompleto(),
                 accesoIndependiente ? "SÍ" : "NO");
@@ -62,34 +60,49 @@ public class PerfilController {
 
     /**
      * Obtener todos los perfiles del usuario autenticado
-     * GET /api/perfiles
+     * ✅ CORREGIDO: Sin LazyInitializationException
      */
     @GetMapping
     @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
     public ResponseEntity<List<PerfilResponse>> getMisPerfiles() {
-        Usuarios usuario = JwtUtil.getCurrentUser()
+        Usuarios usuarioAuth = JwtUtil.getCurrentUser()
                 .orElseThrow(() -> new CustomException("Usuario no autenticado", HttpStatus.UNAUTHORIZED));
 
-        log.info("📋 Obteniendo perfiles para: {}", usuario.getEmail());
+        log.info("📋 Obteniendo perfiles para: {}", usuarioAuth.getEmail());
 
-        List<Perfil> perfiles = usuario.getPerfilesAccesibles();
+        // ✅ Recargar el usuario desde la BD para tener sesión activa
+        Usuarios usuario = usuarioService.getUsuarioById(usuarioAuth.getId());
 
+        List<Perfil> perfiles = new ArrayList<>();
+
+        if (usuario.esAdministradorDePerfiles()) {
+            // ✅ Usar el repositorio directamente (sin lazy)
+            perfiles = perfilService.getPerfilesActivosByAdministrador(usuario.getId());
+        } else if (usuario.esPerfilIndependiente()) {
+            // ✅ Usar el repositorio directamente
+            Perfil perfilAsociado = perfilService.getPerfilByUsuarioAsociado(usuario.getId());
+            if (perfilAsociado != null) {
+                perfiles = List.of(perfilAsociado);
+            }
+        }
+
+        log.info("✅ {} perfiles encontrados", perfiles.size());
         return ResponseEntity.ok(PerfilResponse.fromEntityList(perfiles));
     }
 
     /**
      * Obtener un perfil específico por ID
-     * GET /api/perfiles/{perfilId}
      */
     @GetMapping("/{perfilId}")
     @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
     public ResponseEntity<PerfilResponse> getPerfil(@PathVariable Long perfilId) {
         Usuarios usuario = JwtUtil.getCurrentUser()
                 .orElseThrow(() -> new CustomException("Usuario no autenticado", HttpStatus.UNAUTHORIZED));
 
         log.info("📋 Obteniendo perfil ID: {} para usuario: {}", perfilId, usuario.getEmail());
 
-        // Validar acceso al perfil
         usuarioService.validarAccesoAPerfil(usuario.getId(), perfilId);
 
         Perfil perfil = perfilService.getPerfilById(perfilId);
@@ -99,7 +112,6 @@ public class PerfilController {
 
     /**
      * Actualizar un perfil
-     * PUT /api/perfiles/{perfilId}
      */
     @PutMapping("/{perfilId}")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMINISTRADOR', 'ROLE_FAMILIA', 'ROLE_EMPRESA')")
@@ -119,8 +131,7 @@ public class PerfilController {
     }
 
     /**
-     * Deshabilitar un perfil (eliminación lógica)
-     * DELETE /api/perfiles/{perfilId}
+     * Deshabilitar un perfil
      */
     @DeleteMapping("/{perfilId}")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMINISTRADOR', 'ROLE_FAMILIA', 'ROLE_EMPRESA')")
@@ -138,7 +149,6 @@ public class PerfilController {
 
     /**
      * Habilitar un perfil
-     * PUT /api/perfiles/{perfilId}/habilitar
      */
     @PutMapping("/{perfilId}/habilitar")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMINISTRADOR', 'ROLE_FAMILIA', 'ROLE_EMPRESA')")
@@ -155,8 +165,7 @@ public class PerfilController {
     }
 
     /**
-     * Cambiar contraseña de un perfil independiente (solo admin)
-     * PUT /api/perfiles/{perfilId}/password
+     * Cambiar contraseña de un perfil independiente
      */
     @PutMapping("/{perfilId}/password")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMINISTRADOR', 'ROLE_FAMILIA', 'ROLE_EMPRESA')")

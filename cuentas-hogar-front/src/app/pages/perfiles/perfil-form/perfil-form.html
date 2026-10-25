@@ -1,1 +1,160 @@
-<p>perfil-form works!</p>
+<!-- src/app/pages/perfiles/perfil-form/perfil-form.html -->
+
+<div class="perfil-form-container">
+    <div class="form-card">
+        <!-- ========== HEADER ========== -->
+        <div class="form-header">
+            <div class="header-left">
+                <h2>{{ titulo }}</h2>
+                <p class="subtitle">Completa la información del perfil</p>
+            </div>
+            <a routerLink="/perfiles" class="btn-back">
+                <i class="fa-solid fa-arrow-left"></i> Volver
+            </a>
+        </div>
+
+        <!-- ========== FORMULARIO ========== -->
+        <form [formGroup]="perfilForm" (ngSubmit)="onSubmit()" class="perfil-form">
+
+            <!-- ===== NOMBRE ===== -->
+            <div class="form-group">
+                <label for="nombre">Nombre <span class="required">*</span></label>
+                <input
+                    id="nombre"
+                    type="text"
+                    formControlName="nombre"
+                    placeholder="Nombre del perfil"
+                    [class.error]="nombreControl.touched && nombreControl.invalid"
+                />
+                @if (getErrorMessage('nombre')) {
+                    <small class="error-text">{{ getErrorMessage('nombre') }}</small>
+                }
+            </div>
+
+            <!-- ===== APELLIDOS ===== -->
+            <div class="form-group">
+                <label for="apellidos">Apellidos</label>
+                <input
+                    id="apellidos"
+                    type="text"
+                    formControlName="apellidos"
+                    placeholder="Apellidos"
+                />
+            </div>
+
+            <!-- ===== EMAIL ===== -->
+            <div class="form-group">
+                <label for="email">Email <span class="required">*</span></label>
+                <input
+                    id="email"
+                    type="email"
+                    formControlName="email"
+                    placeholder="ejemplo@email.com"
+                    [class.error]="emailControl.touched && emailControl.invalid"
+                />
+                @if (getErrorMessage('email')) {
+                    <small class="error-text">{{ getErrorMessage('email') }}</small>
+                }
+                <small class="help-text">
+                    Se usará para el acceso independiente. El usuario recibirá por email
+                    su contraseña temporal.
+                </small>
+            </div>
+
+            <!-- ===== TELÉFONO ===== -->
+            <div class="form-group">
+                <label for="telefono">Teléfono</label>
+                <input
+                    id="telefono"
+                    type="tel"
+                    formControlName="telefono"
+                    placeholder="+34 612345678"
+                    [class.error]="telefonoControl.touched && telefonoControl.invalid"
+                />
+                @if (getErrorMessage('telefono')) {
+                    <small class="error-text">{{ getErrorMessage('telefono') }}</small>
+                }
+            </div>
+
+            <!-- ===== DIRECCIÓN ===== -->
+            <div class="form-group">
+                <label for="direccion">Dirección</label>
+                <input
+                    id="direccion"
+                    type="text"
+                    formControlName="direccion"
+                    placeholder="Calle, ciudad, país"
+                />
+            </div>
+
+            <!-- ===== FECHA DE NACIMIENTO ===== -->
+            <div class="form-group">
+                <label for="fechaNacimiento">Fecha de Nacimiento</label>
+                <input
+                    id="fechaNacimiento"
+                    type="date"
+                    formControlName="fechaNacimiento"
+                />
+            </div>
+
+            <!-- ===== TIPO ===== -->
+            <div class="form-group">
+                <label for="tipo">Tipo de Perfil <span class="required">*</span></label>
+                <select id="tipo" formControlName="tipo" [class.error]="tipoControl.touched && tipoControl.invalid">
+                    <option value="">Seleccionar tipo</option>
+                    @for (tipo of tipos; track tipo.value) {
+                        <option [value]="tipo.value">{{ tipo.label }}</option>
+                    }
+                </select>
+                @if (getErrorMessage('tipo')) {
+                    <small class="error-text">{{ getErrorMessage('tipo') }}</small>
+                }
+                <small class="help-text">
+                    @if (tipoControl.value === 'MIEMBRO') {
+                        👥 Recibirá por email sus credenciales de acceso como miembro de la familia
+                    } @else if (tipoControl.value === 'EMPLEADO') {
+                        👔 Recibirá por email sus credenciales de acceso como empleado
+                    } @else if (tipoControl.value === 'PERSONAL') {
+                        👤 Perfil personal del administrador (sin acceso independiente)
+                    }
+                </small>
+            </div>
+
+            <!-- ===== FOTO DE PERFIL (opcional) ===== -->
+            <div class="form-group">
+                <label for="fotoPerfil">Foto de Perfil (URL)</label>
+                <input
+                    id="fotoPerfil"
+                    type="url"
+                    formControlName="fotoPerfil"
+                    placeholder="https://ejemplo.com/foto.jpg"
+                />
+            </div>
+
+            <!-- ===== ERROR/SUCCESS ===== -->
+            @if (error()) {
+                <div class="error-message">⚠️ {{ error() }}</div>
+            }
+            @if (success()) {
+                <div class="success-message">✅ {{ success() }}</div>
+            }
+
+            <!-- ===== BOTONES ===== -->
+            <div class="form-actions">
+                <button type="button" (click)="debugForm()">Debug</button>
+                <button type="button" class="btn-cancel" (click)="router.navigate(['/perfiles'])">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn-submit" [disabled]="!isFormValid">
+                    @if (isLoading()) {
+                        <span class="spinner"></span>
+                        Guardando...
+                    } @else {
+                        <i class="fa-solid fa-check"></i>
+                        {{ isEditing() ? 'Actualizar' : 'Crear' }}
+                    }
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

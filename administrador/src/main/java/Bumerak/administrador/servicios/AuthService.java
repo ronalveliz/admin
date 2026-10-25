@@ -43,68 +43,54 @@ public class AuthService {
     public AuthResponse registrar(NuevoUsuariosRegistrado request) {
         log.info("📝 Registrando nuevo usuario: {}", request.email());
 
-        try {
-            // 1. Validar que el email no exista
-            if (usuariosRepository.existsByEmail(request.email())) {
-                throw new CustomException("El email " + request.email() + " ya está registrado", HttpStatus.CONFLICT);
-            }
-
-            // ==========================================================
-            // 2. Validar rol (YA ES UN ENUM, no hace falta convertirlo)
-            // ==========================================================
-            TipoRol tipoRol = request.roleName();
-
-            // Si el DTO trae null, lanzamos error
-            if (tipoRol == null) {
-                throw new CustomException("El rol es obligatorio.", HttpStatus.BAD_REQUEST);
-            }
-
-            // No permitir que un usuario se registre como Administrador
-            if (tipoRol == TipoRol.ADMINISTRADOR) {
-                throw new CustomException("No puedes registrarte con el rol de Administrador.", HttpStatus.BAD_REQUEST);
-            }
-            // ==========================================================
-
-            // 3. Crear el usuario
-            Usuarios usuario = Usuarios.builder()
-                    .email(request.email())
-                    .password(passwordEncoder.encode(request.password()))
-                    .nombre(request.nombre())
-                    .rol(tipoRol) // <--- Asignamos el Enum directamente
-                    .telefono(request.telefono())
-                    .fotoPerfil(request.imgUser())
-                    .enabled(true)
-                    .fechaCreacion(LocalDateTime.now())
-                    .build();
-
-            Usuarios savedUsuario = usuariosRepository.save(usuario);
-            log.info("✅ Usuario creado: {}", savedUsuario.getEmail());
-
-            // 4. Crear grupo si se especifica
-            Grupo grupo = null;
-            if (request.nombreGrupo() != null && !request.nombreGrupo().isEmpty()) {
-                grupo = crearGrupo(savedUsuario, request.nombreGrupo(), request.descripcionGrupo());
-            }
-
-            // 5. Crear perfil personal
-            Perfil perfilPersonal = crearPerfilPersonal(savedUsuario, grupo);
-
-            // 6. Generar token
-            String token = jwtUtil.generarTokenConPerfil(savedUsuario, perfilPersonal);
-
-            return construirAuthResponse(savedUsuario, perfilPersonal, token);
-
-        } catch (CustomException e) {
-            log.error("❌ Error en registro: {}", e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            log.error("❌ Error inesperado en registro: {}", e.getMessage(), e);
-            throw new CustomException("Error al registrar usuario: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        // 1. Validar que el email no exista
+        if (usuariosRepository.existsByEmail(request.email())) {
+            throw new CustomException("El email " + request.email() + " ya está registrado", HttpStatus.CONFLICT);
         }
+
+        // 2. Validar que el rol sea FAMILIA o EMPRESA
+        if (request.roleName() != TipoRol.FAMILIA && request.roleName() != TipoRol.EMPRESA) {
+            throw new CustomException(
+                    "Solo puedes registrarte como FAMILIA o EMPRESA. El rol " + request.roleName() + " no está permitido.",
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
+        // 3. Crear el usuario
+        Usuarios usuario = Usuarios.builder()
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
+                .nombre(request.nombre())
+                .rol(request.roleName())
+                .telefono(request.telefono())
+                .fotoPerfil(request.imgUser())
+                .enabled(true)
+                .fechaCreacion(LocalDateTime.now())
+                .build();
+
+        Usuarios savedUsuario = usuariosRepository.save(usuario);
+        log.info("✅ Usuario creado: {} - Rol: {}", savedUsuario.getEmail(), savedUsuario.getRol());
+
+        // 4. Crear grupo (Familia o Empresa)
+        Grupo grupo = null;
+        if (request.nombreGrupo() != null && !request.nombreGrupo().isEmpty()) {
+            grupo = crearGrupo(savedUsuario, request.nombreGrupo(), request.descripcionGrupo());
+        }
+
+        // 5. Crear perfil personal automáticamente
+        Perfil perfilPersonal = crearPerfilPersonal(savedUsuario, grupo);
+
+        // 6. Generar token
+        String token = jwtUtil.generarTokenConPerfil(savedUsuario, perfilPersonal);
+
+        return construirAuthResponse(savedUsuario, perfilPersonal, token);
     }
 
     /**
-     * Login de usuario
+     * Login de usuario.
+     * Determina el perfil activo según el rol:
+     *   - Admin (ADMINISTRADOR, FAMILIA, EMPRESA) → perfil personal
+     *   - Perfil independiente (MIEMBRO, EMPLEADO) → perfil asociado
      */
     public AuthResponse autenticar(LoginUsuarios request) {
         log.info("🔐 Intentando autenticar usuario: {}", request.email());
@@ -124,10 +110,21 @@ public class AuthService {
 
             log.info("✅ Usuario autenticado: {}", usuario.getEmail());
 
-            // 2. Determinar perfil activo
-            Perfil perfilActivo = usuario.getPerfilPersonal();
+            // 2. ✅ Determinar perfil activo según el rol del usuario
+            Perfil perfilActivo = usuario.getPerfilActivo();
+
             if (perfilActivo == null) {
-                throw new CustomException("No se encontró el perfil personal", HttpStatus.NOT_FOUND);
+                // Mensaje específico para ayudar en el diagnóstico
+                if (usuario.esPerfilIndependiente()) {
+                    throw new CustomException(
+                            "No se encontró el perfil asociado a este usuario",
+                            HttpStatus.NOT_FOUND
+                    );
+                }
+                throw new CustomException(
+                        "No se encontró un perfil activo para el usuario",
+                        HttpStatus.NOT_FOUND
+                );
             }
 
             // 3. Generar token
@@ -162,11 +159,9 @@ public class AuthService {
                 throw new CustomException("Usuario deshabilitado", HttpStatus.FORBIDDEN);
             }
 
-            // Buscar el perfil
             Perfil perfilActivo = perfilRepository.findById(perfilId)
                     .orElseThrow(() -> new CustomException("Perfil no encontrado", HttpStatus.NOT_FOUND));
 
-            // Validar que el perfil pertenezca al usuario
             if (!perfilActivo.getUsuarioAdministrador().getId().equals(usuario.getId())) {
                 throw new CustomException("No tienes permiso para acceder a este perfil", HttpStatus.FORBIDDEN);
             }
@@ -195,7 +190,7 @@ public class AuthService {
         Grupo grupo = Grupo.builder()
                 .nombre(nombre)
                 .descripcion(descripcion)
-                .tipo(rol != null ? rol.getTipoGrupoAsociado() : null) // <--- Evitamos NullPointer
+                .tipo(rol != null ? rol.getTipoGrupoAsociado() : null)
                 .administrador(administrador)
                 .activo(true)
                 .fechaCreacion(LocalDateTime.now())
@@ -253,7 +248,7 @@ public class AuthService {
                 .id(usuario.getId())
                 .email(usuario.getEmail())
                 .nombre(usuario.getNombre())
-                .rol(usuario.getRol().name()) // <--- Devuelve el nombre del Enum (FAMILIA, EMPRESA...)
+                .rol(usuario.getRol().name())
                 .telefono(usuario.getTelefono())
                 .direccion(usuario.getDireccion())
                 .fotoPerfil(usuario.getFotoPerfil())

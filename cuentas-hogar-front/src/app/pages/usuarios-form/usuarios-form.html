@@ -1,1 +1,152 @@
-<p>usuarios-form works!</p>
+
+<form [formGroup]="usuariosForm" (ngSubmit)="onSubmit()" novalidate>
+    <h1>Regístrate aquí</h1>
+
+    <!-- NOMBRE -->
+    <div class="form-control">
+        <input
+            type="text"
+            formControlName="nombre"
+            placeholder="Nombre completo"
+            [class.error]="nombreControl!.touched && nombreControl!.invalid"
+        />
+        @if (nombreError) {
+            <small class="error-text">{{ nombreError }}</small>
+        }
+    </div>
+
+    <!-- EMAIL -->
+    <div class="form-control">
+        <input
+            type="email"
+            formControlName="email"
+            placeholder="Correo electrónico"
+            [class.error]="emailControl!.touched && emailControl!.invalid"
+        />
+        @if (emailError) {
+            <small class="error-text">{{ emailError }}</small>
+        }
+    </div>
+
+    <!-- CONTRASEÑA -->
+    <div class="form-control">
+        <div class="password-wrapper">
+            <input
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Contraseña (mínimo 6 caracteres)"
+                [class.error]="passwordControl!.touched && passwordControl!.invalid"
+            />
+            <button
+                type="button"
+                class="toggle-password"
+                (click)="togglePasswordVisibility()"
+            >
+                {{ showPassword() ? '🙈' : '👁️' }}
+            </button>
+        </div>
+        @if (passwordError) {
+            <small class="error-text">{{ passwordError }}</small>
+        }
+    </div>
+
+    <!-- CONFIRMAR CONTRASEÑA -->
+    <div class="form-control">
+        <div class="password-wrapper">
+            <input
+                [type]="showConfirmPassword() ? 'text' : 'password'"
+                formControlName="passwordConfirm"
+                placeholder="Confirmar contraseña"
+                [class.error]="passwordConfirmControl!.touched && passwordConfirmControl!.invalid"
+            />
+            <button
+                type="button"
+                class="toggle-password"
+                (click)="toggleConfirmPasswordVisibility()"
+            >
+                {{ showConfirmPassword() ? '🙈' : '👁️' }}
+            </button>
+        </div>
+        @if (passwordConfirmError) {
+            <small class="error-text">{{ passwordConfirmError }}</small>
+        }
+    </div>
+
+    <!-- TELÉFONO -->
+    <div class="form-control">
+        <input
+            type="tel"
+            formControlName="telefono"
+            placeholder="Teléfono (opcional)"
+            [class.error]="telefonoControl!.touched && telefonoControl!.invalid"
+        />
+        @if (telefonoError) {
+            <small class="error-text">{{ telefonoError }}</small>
+        }
+    </div>
+
+    <!-- ROL -->
+    <div class="form-control">
+        <select formControlName="roleName">
+            @for (rol of roles; track rol.value) {
+                <option [value]="rol.value">{{ rol.label }}</option>
+            }
+        </select>
+        <small class="help-text">
+            @if (selectedRole() === 'FAMILIA') {
+                🏠 Crearás una familia con miembros
+            } @else if (selectedRole() === 'EMPRESA') {
+                🏢 Crearás una empresa con empleados
+            } @else {
+                👑 Tendrás acceso administrativo total
+            }
+        </small>
+    </div>
+
+    <!-- NOMBRE DEL GRUPO -->
+    @if (selectedRole() === 'FAMILIA' || selectedRole() === 'EMPRESA') {
+        <div class="form-control">
+            <input
+                type="text"
+                formControlName="nombreGrupo"
+                [placeholder]="selectedRole() === 'FAMILIA' ? 'Nombre de la familia' : 'Nombre de la empresa'"
+                [class.error]="usuariosForm.get('nombreGrupo')?.touched && usuariosForm.get('nombreGrupo')?.invalid"
+            />
+            @if (nombreGrupoError) {
+                <small class="error-text">{{ nombreGrupoError }}</small>
+            }
+        </div>
+
+        <div class="form-control">
+            <input
+                type="text"
+                formControlName="descripcionGrupo"
+                placeholder="Descripción del grupo (opcional)"
+            />
+        </div>
+    }
+
+    <!-- ERROR GENERAL -->
+    @if (error()) {
+        <div class="error-message">
+            ⚠️ {{ error() }}
+        </div>
+    }
+
+    <!-- BOTÓN -->
+    <button type="submit" [disabled]="!isFormValid()">
+        @if (isLoading()) {
+            <span class="spinner"></span>
+            Registrando...
+        } @else {
+            Registrar
+        }
+    </button>
+
+    <span>O usa tu cuenta</span>
+    <div class="social-container">
+        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#"><i class="fa-brands fa-google"></i></a>
+        <a href="#"><i class="fa-brands fa-tiktok"></i></a>
+    </div>
+</form>

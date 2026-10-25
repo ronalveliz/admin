@@ -1,188 +1,216 @@
-<div class="d-flex">
-  <!-- Sidebar -->
-  <app-sidebar></app-sidebar>
+<!-- src/app/pages/home/home.component.html -->
 
-  <!-- Contenido principal -->
-  <div class="flex-grow-1 p-4" style="margin-left: 250px; background-color: #f8f9fa; min-height: 100vh;">
-    
-    <!-- Cabecera -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div>
-        <h2 class="fw-bold">Dashboard</h2>
-        <p class="text-muted">Resumen general de la situación económica</p>
-      </div>
-      <div class="d-flex align-items-center gap-2">
-        <div class="bg-white p-2 rounded-pill shadow-sm">
-          <input type="text" class="form-control form-control-sm border-0" placeholder="Buscar...">
+<div class="home-wrapper">
+    <!-- ========== LOADING ========== -->
+    @if (isLoading()) {
+        <div class="loading-overlay">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-3 text-muted">Cargando tu dashboard...</p>
         </div>
-        <div class="d-flex align-items-center gap-2 bg-white p-2 rounded-pill shadow-sm">
-          <i class="fa-solid fa-bell text-primary"></i>
-          <img src="https://via.placeholder.com/40" class="rounded-circle" alt="User" style="width: 35px; height: 35px;">
-          <div>
-            <strong class="d-block" style="font-size: 12px;">{{ authService.getCurrentUser()?.usuario?.email }}</strong>
-            <small class="text-muted" style="font-size: 11px;">Admin</small>
-          </div>
-        </div>
-      </div>
-    </div>
+    }
 
-    <!-- Tarjetas de Resumen (Row 1) -->
-    <div class="row g-4 mb-4">
-      <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body d-flex align-items-center gap-3">
-            <div class="bg-success-subtle rounded-circle p-3 text-success">
-              <i class="fa-solid fa-arrow-trend-up fs-4"></i>
-            </div>
-            <div>
-              <small class="text-muted d-block">Ingresos Totales</small>
-              <h4 class="fw-bold mb-0">$1,250,000</h4>
-              <small class="text-success">+12.5% vs mes anterior</small>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- ========== CONTENIDO ========== -->
+    @if (!isLoading()) {
+        <div class="home-content">
 
-      <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body d-flex align-items-center gap-3">
-            <div class="bg-danger-subtle rounded-circle p-3 text-danger">
-              <i class="fa-solid fa-arrow-trend-down fs-4"></i>
+            <!-- ===== HEADER ===== -->
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+                <div>
+                    <h1 class="greeting">{{ greeting() }}, {{ userName() }}!</h1>
+                    <p class="subtitle">Aquí tienes el resumen de tus finanzas</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn-refresh" (click)="refreshData()" title="Actualizar">
+                        <i class="fa-solid fa-rotate"></i>
+                    </button>
+                    <div class="user-badge">
+                        <span class="avatar">{{ getInitials(userName()) }}</span>
+                        <div class="user-text">
+                            <strong>{{ userName() }}</strong>
+                            <small>{{ user()?.usuario?.rol || 'Usuario' }}</small>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div>
-              <small class="text-muted d-block">Gastos Totales</small>
-              <h4 class="fw-bold mb-0">$780,500</h4>
-              <small class="text-danger">+8.3% vs mes anterior</small>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body d-flex align-items-center gap-3">
-            <div class="bg-primary-subtle rounded-circle p-3 text-primary">
-              <i class="fa-solid fa-scale-balanced fs-4"></i>
-            </div>
-            <div>
-              <small class="text-muted d-block">Balance Neto</small>
-              <h4 class="fw-bold mb-0">$469,500</h4>
-              <small class="text-primary">+15.7% vs mes anterior</small>
-            </div>
-          </div>
-        </div>
-      </div>
+            <!-- ===== TARJETAS ===== -->
+            <div class="row g-4 mb-4">
+                <!-- Ingresos -->
+                <div class="col-xl-3 col-md-6">
+                    <div class="card-summary income">
+                        <div class="card-icon">
+                            <i class="fa-solid fa-arrow-trend-up"></i>
+                        </div>
+                        <div class="card-info">
+                            <span class="card-label">Ingresos Totales</span>
+                            <h3>{{ formatCurrency(resumen().totalIngresos) }}</h3>
+                            <span class="trend positive">
+                                <i class="fa-solid fa-arrow-up"></i> {{ resumen().porcentajeCambio.toFixed(1) }}%
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
-      <div class="col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body d-flex align-items-center gap-3">
-            <div class="bg-info-subtle rounded-circle p-3 text-info">
-              <i class="fa-solid fa-percent fs-4"></i>
-            </div>
-            <div>
-              <small class="text-muted d-block">Presupuesto Ejecutado</small>
-              <h4 class="fw-bold mb-0">68%</h4>
-              <small class="text-muted">68% del presupuesto anual</small>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+                <!-- Gastos -->
+                <div class="col-xl-3 col-md-6">
+                    <div class="card-summary expense">
+                        <div class="card-icon">
+                            <i class="fa-solid fa-arrow-trend-down"></i>
+                        </div>
+                        <div class="card-info">
+                            <span class="card-label">Gastos Totales</span>
+                            <h3>{{ formatCurrency(resumen().totalGastos) }}</h3>
+                            <span class="trend negative">
+                                <i class="fa-solid fa-arrow-down"></i> 
+                                {{ resumen().totalIngresos > 0 ? ((resumen().totalGastos / resumen().totalIngresos * 100)).toFixed(1) : 0 }}%
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
-    <!-- Gráficos y Tablas (Row 2) -->
-    <div class="row g-4 mb-4">
-      <!-- Gráfico de Líneas (Simulado con card) -->
-      <div class="col-md-8">
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Ingresos vs Gastos</h5>
-            <select class="form-select form-select-sm w-auto">
-              <option>Este año</option>
-              <option>Mes anterior</option>
-            </select>
-          </div>
-          <div class="card-body">
-            <!-- Aquí iría tu librería de gráficos (Chart.js, Highcharts, etc.) -->
-            <div class="text-center text-muted py-5">
-              <i class="fa-solid fa-chart-line fs-1 mb-3"></i>
-              <p class="mb-0">(Aquí se renderizará el gráfico real con Chart.js)</p>
-            </div>
-          </div>
-        </div>
-      </div>
+                <!-- Balance -->
+                <div class="col-xl-3 col-md-6">
+                    <div class="card-summary balance">
+                        <div class="card-icon">
+                            <i class="fa-solid fa-scale-balanced"></i>
+                        </div>
+                        <div class="card-info">
+                            <span class="card-label">Balance Neto</span>
+                            <h3 [class.positive]="resumen().balance >= 0" [class.negative]="resumen().balance < 0">
+                                {{ formatCurrency(resumen().balance) }}
+                            </h3>
+                            <span class="trend" [class.positive]="resumen().balance >= 0" [class.negative]="resumen().balance < 0">
+                                {{ resumen().balance >= 0 ? 'Superávit' : 'Déficit' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
-      <!-- Gráfico de Donut (Simulado) -->
-      <div class="col-md-4">
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-white border-0">
-            <h5 class="mb-0">Distribución de Gastos</h5>
-          </div>
-          <div class="card-body">
-            <!-- Aquí iría el gráfico de torta -->
-            <div class="text-center text-muted py-5">
-              <i class="fa-solid fa-chart-pie fs-1 mb-3"></i>
-              <p class="mb-0">(Aquí se renderizará el donut real)</p>
+                <!-- Presupuesto -->
+                <div class="col-xl-3 col-md-6">
+                    <div class="card-summary budget">
+                        <div class="card-icon">
+                            <i class="fa-solid fa-percent"></i>
+                        </div>
+                        <div class="card-info w-100">
+                            <span class="card-label">Presupuesto Ejecutado</span>
+                            <h3>{{ presupuesto().porcentaje }}%</h3>
+                            <div class="progress-custom">
+                                <div class="progress-fill" [style.width.%]="presupuesto().porcentaje"></div>
+                            </div>
+                            <small>{{ formatCurrency(presupuesto().ejecutado) }} de {{ formatCurrency(presupuesto().total) }}</small>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Tabla de Transacciones (Row 3) -->
-    <div class="row g-4">
-      <div class="col-md-6">
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-white border-0 d-flex justify-content-between">
-            <h5 class="mb-0">Transacciones Recientes</h5>
-            <a href="#" class="text-primary text-decoration-none small">Ver todas</a>
-          </div>
-          <div class="card-body p-0">
-            <table class="table table-hover mb-0">
-              <tbody>
-                <tr>
-                  <td><i class="fa-solid fa-circle text-success me-2" style="font-size: 8px;"></i> 18/05/2024</td>
-                  <td>Ingreso por Ventas</td>
-                  <td class="text-success fw-bold text-end">+$25,000</td>
-                </tr>
-                <tr>
-                  <td><i class="fa-solid fa-circle text-danger me-2" style="font-size: 8px;"></i> 14/05/2024</td>
-                  <td>Pago a Proveedor</td>
-                  <td class="text-danger fw-bold text-end">-$8,500</td>
-                </tr>
-                <tr>
-                  <td><i class="fa-solid fa-circle text-danger me-2" style="font-size: 8px;"></i> 13/05/2024</td>
-                  <td>Servicio Profesional</td>
-                  <td class="text-danger fw-bold text-end">-$5,800</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+            <!-- ===== GRÁFICOS ===== -->
+            <div class="row g-4 mb-4">
+                <!-- Gráfico de Líneas -->
+                <div class="col-lg-7">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 fw-bold">
+                                <i class="fa-solid fa-chart-line text-primary me-2"></i>
+                                Ingresos vs Gastos
+                            </h5>
+                            <span class="badge bg-primary">12 meses</span>
+                        </div>
+                        <div class="card-body" style="height: 300px; position: relative;">
+                            <canvas #lineChart style="height: 100% !important; width: 100% !important;"></canvas>
+                        </div>
+                    </div>
+                </div>
 
-      <!-- Presupuesto -->
-      <div class="col-md-6">
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-white border-0">
-            <h5 class="mb-0">Presupuesto Anual</h5>
-          </div>
-          <div class="card-body">
-            <div class="d-flex justify-content-between mb-2">
-              <span class="text-muted">Presupuesto Total</span>
-              <strong>$2,500,000</strong>
+                <!-- Gráfico de Donut -->
+                <div class="col-lg-5">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 fw-bold">
+                                <i class="fa-solid fa-chart-pie text-primary me-2"></i>
+                                Distribución de Gastos
+                            </h5>
+                            <span class="badge bg-primary">{{ gastosPorCategoria().length }} categorías</span>
+                        </div>
+                        <div class="card-body" style="height: 300px; position: relative;">
+                            <canvas #donutChart style="height: 100% !important; width: 100% !important;"></canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="d-flex justify-content-between mb-2">
-              <span class="text-muted">Ejecutado</span>
-              <strong>$1,700,000</strong>
-            </div>
-            <div class="progress" style="height: 10px;">
-              <div class="progress-bar bg-primary" role="progressbar" style="width: 68%" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-            <small class="text-muted d-block mt-2">68% del presupuesto anual</small>
-          </div>
-        </div>
-      </div>
-    </div>
 
-  </div>
+            <!-- ===== GRÁFICO DE BARRAS ===== -->
+            <div class="row g-4 mb-4">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 fw-bold">
+                                <i class="fa-solid fa-chart-bar text-primary me-2"></i>
+                                Gastos por Categoría
+                            </h5>
+                            <span class="badge bg-primary">Top categorías</span>
+                        </div>
+                        <div class="card-body" style="height: 280px; position: relative;">
+                            <canvas #barChart style="height: 100% !important; width: 100% !important;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== MOVIMIENTOS RECIENTES ===== -->
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 fw-bold">
+                                <i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>
+                                Movimientos Recientes
+                            </h5>
+                            <a routerLink="/movimientos" class="text-primary text-decoration-none small">Ver todos</a>
+                        </div>
+                        <div class="card-body">
+                            @if (movimientosRecientes().length === 0) {
+                                <div class="text-center py-3 text-muted">
+                                    <i class="fa-regular fa-clock fs-2 mb-2"></i>
+                                    <p class="mb-0">No hay movimientos recientes</p>
+                                </div>
+                            } @else {
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha</th>
+                                                <th>Descripción</th>
+                                                <th>Categoría</th>
+                                                <th class="text-end">Monto</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for (mov of movimientosRecientes(); track mov.id) {
+                                                <tr>
+                                                    <td>{{ getFormattedDate(mov.fecha) }}</td>
+                                                    <td>{{ mov.descripcion || 'Sin descripción' }}</td>
+                                                    <td>
+                                                        <span class="badge" [class.bg-success]="mov.tipo === 'INGRESO'" [class.bg-danger]="mov.tipo === 'GASTO'">
+                                                            {{ mov.categoria }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-end fw-bold" [class.text-success]="mov.tipo === 'INGRESO'" [class.text-danger]="mov.tipo === 'GASTO'">
+                                                        {{ mov.tipo === 'INGRESO' ? '+' : '-' }} {{ formatCurrency(mov.monto) }}
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    }
 </div>

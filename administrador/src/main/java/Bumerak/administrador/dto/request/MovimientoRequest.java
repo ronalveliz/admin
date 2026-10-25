@@ -5,10 +5,14 @@ import Bumerak.administrador.entidades.enums.TipoMovimiento;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@Setter
+@Getter
 @Data
 public class MovimientoRequest {
 

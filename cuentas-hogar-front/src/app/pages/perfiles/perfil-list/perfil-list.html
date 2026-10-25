@@ -1,1 +1,188 @@
-<p>perfil-list works!</p>
+<!-- src/app/pages/perfiles/perfil-list/perfil-list.component.html -->
+
+<div class="perfil-list-container">
+    <!-- ========== HEADER ========== -->
+    <div class="page-header">
+        <div class="header-left">
+            <h2><i class="fa-regular fa-users me-2"></i> Perfiles</h2>
+            <p class="subtitle">Gestiona todos los perfiles de tu grupo</p>
+        </div>
+        <div class="header-right">
+            @if (isAdmin()) {
+                <a routerLink="/perfiles/nuevo" class="btn-primary">
+                    <i class="fa-solid fa-plus"></i> Nuevo Perfil
+                </a>
+            }
+            <button class="btn-refresh" (click)="refreshData()" title="Actualizar">
+                <i class="fa-solid fa-rotate"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ========== ESTADÍSTICAS ========== -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <span class="stat-icon">👥</span>
+            <div class="stat-info">
+                <span class="stat-value">{{ totalPerfiles() }}</span>
+                <span class="stat-label">Total Perfiles</span>
+            </div>
+        </div>
+        <div class="stat-card success">
+            <span class="stat-icon">✅</span>
+            <div class="stat-info">
+                <span class="stat-value">{{ totalActivos() }}</span>
+                <span class="stat-label">Activos</span>
+            </div>
+        </div>
+        <div class="stat-card danger">
+            <span class="stat-icon">⛔</span>
+            <div class="stat-info">
+                <span class="stat-value">{{ totalInactivos() }}</span>
+                <span class="stat-label">Inactivos</span>
+            </div>
+        </div>
+        @if (isAdmin()) {
+            <div class="stat-card primary">
+                <span class="stat-icon">➕</span>
+                <div class="stat-info">
+                    <a routerLink="/perfiles/nuevo" class="stat-link">Crear Perfil</a>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- ========== FILTROS ========== -->
+    <div class="filters-section">
+        <div class="filters-row">
+            <!-- Búsqueda -->
+            <div class="filter-group search-group">
+                <i class="fa-solid fa-search"></i>
+                <input
+                    type="text"
+                    placeholder="Buscar perfiles..."
+                    [(ngModel)]="searchTerm"
+                />
+            </div>
+
+            <!-- Filtro por tipo -->
+            <div class="filter-group">
+                <select [(ngModel)]="filterTipo">
+                    @for (tipo of tipos; track tipo.value) {
+                        <option [value]="tipo.value">{{ tipo.label }}</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Mostrar inactivos -->
+            <div class="filter-group checkbox-group">
+                <label>
+                    <input type="checkbox" [(ngModel)]="showInactivos" />
+                    Mostrar inactivos
+                </label>
+            </div>
+
+            <!-- Limpiar -->
+            <button class="btn-clear-filters" (click)="searchTerm.set(''); filterTipo.set('TODOS'); showInactivos.set(false)">
+                <i class="fa-solid fa-undo"></i> Limpiar
+            </button>
+        </div>
+    </div>
+
+    <!-- ========== LISTA DE PERFILES ========== -->
+    @if (isLoading()) {
+        <div class="loading-state">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p>Cargando perfiles...</p>
+        </div>
+    } @else if (perfilesFiltrados().length === 0) {
+        <div class="empty-state">
+            <i class="fa-regular fa-user"></i>
+            <h3>No hay perfiles</h3>
+            <p>No se encontraron perfiles que coincidan con los filtros</p>
+            @if (isAdmin()) {
+                <a routerLink="/perfiles/nuevo" class="btn-primary">
+                    <i class="fa-solid fa-plus"></i> Crear perfil
+                </a>
+            }
+        </div>
+    } @else {
+        <div class="perfiles-grid">
+            @for (perfil of perfilesFiltrados(); track perfil.id) {
+                <div class="perfil-card" [class.inactive]="!perfil.activo">
+                    <div class="perfil-header">
+                        <div class="perfil-avatar" [style.background]="getColorForPerfil(perfil.nombreCompleto)">
+                            {{ getInitials(perfil.nombreCompleto) }}
+                        </div>
+                        <div class="perfil-info">
+                            <h4>{{ perfil.nombreCompleto }}</h4>
+                            <div class="perfil-meta">
+                                <span class="badge" [class]="getTipoClass(perfil.tipo)">
+                                    <i class="fa-solid {{ getTipoIcon(perfil.tipo) }}"></i>
+                                    {{ perfil.tipo }}
+                                </span>
+                                <span class="badge" [class]="getEstadoClass(perfil.activo)">
+                                    {{ getEstadoText(perfil.activo) }}
+                                </span>
+                            </div>
+                            @if (perfil.email) {
+                                <span class="perfil-email">
+                                    <i class="fa-regular fa-envelope"></i> {{ perfil.email }}
+                                </span>
+                            }
+                            @if (perfil.telefono) {
+                                <span class="perfil-phone">
+                                    <i class="fa-regular fa-phone"></i> {{ perfil.telefono }}
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="perfil-stats">
+                        <div class="stat">
+                            <span class="stat-value">{{ formatCurrency(perfil.totalIngresos || 0) }}</span>
+                            <span class="stat-label">Ingresos</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value text-danger">{{ formatCurrency(perfil.totalGastos || 0) }}</span>
+                            <span class="stat-label">Gastos</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value" [class.text-success]="(perfil.balance || 0) >= 0" [class.text-danger]="(perfil.balance || 0) < 0">
+                                {{ formatCurrency(perfil.balance || 0) }}
+                            </span>
+                            <span class="stat-label">Balance</span>
+                        </div>
+                    </div>
+
+                    @if (isAdmin()) {
+                        <div class="perfil-actions">
+                            <a [routerLink]="['/perfiles', perfil.id]" class="btn-edit" title="Editar">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            @if (perfil.tipo !== 'PERSONAL') {
+                                <button class="btn-toggle" (click)="cambiarEstado(perfil)" [title]="perfil.activo ? 'Deshabilitar' : 'Habilitar'">
+                                    <i class="fa-solid" [class.fa-eye]="perfil.activo" [class.fa-eye-slash]="!perfil.activo"></i>
+                                </button>
+                                <button class="btn-delete" (click)="eliminarPerfil(perfil)" title="Eliminar">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            } @else {
+                                <span class="badge badge-secondary">Perfil Principal</span>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+
+    <!-- ========== RESULTADOS ========== -->
+    @if (!isLoading() && perfilesFiltrados().length > 0) {
+        <div class="results-summary">
+            <span>Mostrando {{ perfilesFiltrados().length }} de {{ totalPerfiles() }} perfiles</span>
+        </div>
+    }
+</div>

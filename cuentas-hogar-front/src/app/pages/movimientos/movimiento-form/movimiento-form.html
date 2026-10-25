@@ -1,1 +1,137 @@
-<p>movimiento-form works!</p>
+<!-- src/app/pages/movimientos/movimiento-form/movimiento-form.component.html -->
+
+<div class="movimiento-form-container">
+    <div class="form-card">
+        <!-- Header -->
+        <div class="form-header">
+            <div class="header-left">
+                <h2>{{ titulo }}</h2>
+                <p class="subtitle">Registra un nuevo movimiento financiero</p>
+            </div>
+            <a routerLink="/movimientos" class="btn-back">
+                <i class="fa-solid fa-arrow-left"></i> Volver
+            </a>
+        </div>
+
+        <!-- Formulario -->
+        <form [formGroup]="movimientoForm" (ngSubmit)="onSubmit()" class="movimiento-form">
+
+            <!-- ===== TIPO ===== -->
+            <div class="form-group">
+                <label>Tipo de Movimiento</label>
+                <div class="tipo-selector">
+                    @for (tipo of tipos; track tipo.value) {
+                        <div class="tipo-option" [class.active]="movimientoForm.get('tipo')?.value === tipo.value"
+                             (click)="movimientoForm.patchValue({ tipo: tipo.value })">
+                            <span class="tipo-icon">{{ tipo.label.split(' ')[0] }}</span>
+                            <span class="tipo-label">{{ tipo.label.split(' ')[1] || tipo.value }}</span>
+                        </div>
+                    }
+                </div>
+                @if (movimientoForm.get('tipo')?.touched && movimientoForm.get('tipo')?.invalid) {
+                    <small class="error-text">Selecciona un tipo</small>
+                }
+            </div>
+
+            <!-- ===== MONTO ===== -->
+            <div class="form-group">
+                <label>Monto</label>
+                <div class="input-with-icon">
+                    <span class="input-icon">€</span>
+                    <input
+                        type="number"
+                        formControlName="monto"
+                        placeholder="0.00"
+                        step="0.01"
+                        min="0.01"
+                        [class.error]="montoControl!.touched && montoControl!.invalid"
+                    />
+                </div>
+                @if (getErrorMessage('monto')) {
+                    <small class="error-text">{{ getErrorMessage('monto') }}</small>
+                }
+            </div>
+
+            <!-- ===== CATEGORÍA ===== -->
+            <div class="form-group">
+                <label>Categoría</label>
+                <select formControlName="categoria" [class.error]="movimientoForm.get('categoria')?.touched && movimientoForm.get('categoria')?.invalid">
+                    <option value="">Seleccionar categoría</option>
+                    @for (cat of categoriasFiltradas(); track cat.value) {
+                        <option [value]="cat.value">{{ cat.label }}</option>
+                    }
+                </select>
+                @if (getErrorMessage('categoria')) {
+                    <small class="error-text">{{ getErrorMessage('categoria') }}</small>
+                }
+            </div>
+
+            <!-- ===== DESCRIPCIÓN ===== -->
+            <div class="form-group">
+                <label>Descripción</label>
+                <input
+                    type="text"
+                    formControlName="descripcion"
+                    placeholder="Ej: Compra supermercado, Sueldo mensual..."
+                    [class.error]="descripcionControl!.touched && descripcionControl!.invalid"
+                />
+                @if (getErrorMessage('descripcion')) {
+                    <small class="error-text">{{ getErrorMessage('descripcion') }}</small>
+                }
+            </div>
+
+            <!-- ===== FECHA ===== -->
+            <div class="form-group">
+                <label>Fecha</label>
+                <input
+                    type="date"
+                    formControlName="fecha"
+                    [class.error]="fechaControl!.touched && fechaControl!.invalid"
+                />
+                @if (getErrorMessage('fecha')) {
+                    <small class="error-text">{{ getErrorMessage('fecha') }}</small>
+                }
+            </div>
+
+            <!-- ===== PERFIL (opcional) ===== -->
+            @if (perfiles().length > 0 && authService.isAdmin()) {
+                <div class="form-group">
+                    <label>Perfil (opcional)</label>
+                    <select formControlName="perfilId">
+                        <option [value]="null">Seleccionar perfil</option>
+                        @for (perfil of perfiles(); track perfil.id) {
+                            <option [value]="perfil.id">
+                                {{ perfil.nombreCompleto }} - {{ perfil.tipo }}
+                            </option>
+                        }
+                    </select>
+                    <small class="help-text">Si no seleccionas, se asignará a tu perfil personal</small>
+                </div>
+            }
+
+            <!-- ===== ERROR/SUCCESS ===== -->
+            @if (error()) {
+                <div class="error-message">⚠️ {{ error() }}</div>
+            }
+            @if (success()) {
+                <div class="success-message">✅ {{ success() }}</div>
+            }
+
+            <!-- ===== BOTONES ===== -->
+            <div class="form-actions">
+                <button type="button" class="btn-cancel" (click)="router.navigate(['/movimientos'])">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn-submit" [disabled]="!isFormValid()">
+                    @if (isLoading()) {
+                        <span class="spinner"></span>
+                        Guardando...
+                    } @else {
+                        <i class="fa-solid fa-check"></i>
+                        {{ isEditing() ? 'Actualizar' : 'Guardar' }}
+                    }
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ public class PerfilResponse {
     private String telefono;
     private String direccion;
     private String fotoPerfil;
+    private LocalDate fechaNacimiento;
     private String tipo; // PERSONAL, MIEMBRO, EMPLEADO
     private BigDecimal totalIngresos;
     private BigDecimal totalGastos;
@@ -47,6 +49,7 @@ public class PerfilResponse {
                 .email(perfil.getEmail())
                 .telefono(perfil.getTelefono())
                 .direccion(perfil.getDireccion())
+                .fechaNacimiento(perfil.getFechaNacimiento())
                 .fotoPerfil(perfil.getFotoPerfil())
                 .tipo(perfil.getTipo() != null ? perfil.getTipo().name() : null)
                 .totalIngresos(perfil.getTotalIngresos() != null ? perfil.getTotalIngresos() : BigDecimal.ZERO)
@@ -56,7 +59,6 @@ public class PerfilResponse {
                 .activo(perfil.getActivo())
                 .build();
     }
-
     /**
      * Convertir lista de Perfil a lista de PerfilResponse
      */

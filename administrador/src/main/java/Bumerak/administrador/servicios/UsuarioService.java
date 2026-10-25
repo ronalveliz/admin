@@ -247,5 +247,19 @@ public class UsuarioService {
 
         throw new CustomException("Tipo de usuario no válido");
     }
+    /**
+     * Obtener perfiles activos de un administrador (SIN lazy init)
+ */
+    public List<Perfil> getPerfilesActivosByAdministrador(Long administradorId) {
+        return perfilRepository.findByUsuarioAdministradorIdAndActivoTrue(administradorId);
+    }
+
+    /**
+     * Obtener perfil asociado a un usuario independiente
+     */
+    public Perfil getPerfilByUsuarioAsociado(Long usuarioId) {
+        return perfilRepository.findByUsuarioAsociadoId(usuarioId)
+                .orElse(null);
+    }
 }
 

@@ -1,44 +1,89 @@
-@if(authService.isAuthenticated()){
-<div class="d-flex flex-column vh-100 bg-dark text-white p-3" style="width: 250px; position: fixed;">
-  <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-    <span class="fs-4"><i class="fa-solid fa-building-columns me-2"></i>AdminEcon</span>
-  </a>
-  <hr>
-  
-  <ul class="nav nav-pills flex-column mb-auto">
-    <li class="nav-item">
-      <a href="#" class="nav-link text-white active bg-primary">
-        <i class="fa-solid fa-house me-2"></i>Dashboard
-      </a>
-    </li>
-    <li class="nav-item">
-      <a href="#" class="nav-link text-white">
-        <i class="fa-solid fa-chart-line me-2"></i>Ingresos
-      </a>
-    </li>
-    <li class="nav-item">
-      <a href="#" class="nav-link text-white">
-        <i class="fa-solid fa-chart-pie me-2"></i>Gastos
-      </a>
-    </li>
-    <li class="nav-item">
-      <a href="#" class="nav-link text-white">
-        <i class="fa-solid fa-file-invoice-dollar me-2"></i>Presupuesto
-      </a>
-    </li>
-    <li class="nav-item">
-      <a href="#" class="nav-link text-white">
-        <i class="fa-solid fa-users me-2"></i>Proveedores
-      </a>
-    </li>
-  </ul>
-  
-  <hr>
-  <div class="dropdown">
-    <span class="text-secondary small">{{ authService.getCurrentUser()?.usuario?.email }}</span>
-    <button (click)="logout()" class="btn btn-danger btn-sm w-100 mt-2">
-      <i class="fa-solid fa-right-from-bracket me-2"></i>Cerrar Sesión
-    </button>
-  </div>
-</div>
+<aside class="sidebar" [class.collapsed]="isCollapsedState">
+    <!-- ========== SIDEBAR HEADER ========== -->
+    <div class="sidebar-header">
+        <div class="logo-container" (click)="toggleSidebar()">
+            <div class="logo-icon">
+                <span class="logo-emoji">🏠</span>
+            </div>
+            <span class="logo-text" [class.hidden]="isCollapsedState">Cuentas Hogar</span>
+        </div>
+        <button class="toggle-btn" (click)="toggleSidebar()">
+            <i class="fa-solid" [class.fa-chevron-left]="!isCollapsedState" [class.fa-chevron-right]="isCollapsedState"></i>
+        </button>
+    </div>
+
+    <!-- ========== PERFIL DE USUARIO ========== -->
+    <div class="user-profile" routerLink="/perfiles">
+        <div class="user-avatar" [style.background]="'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'">
+            {{ userInitials() }}
+        </div>
+        <div class="user-info" [class.hidden]="isCollapsedState">
+            <span class="user-name">{{ userName() }}</span>
+            <span class="user-role">
+                <span class="role-icon">🏠</span>
+                {{ userRol() }}
+            </span>
+        </div>
+    </div>
+
+    <!-- ========== MENÚ DE NAVEGACIÓN ========== -->
+    <nav class="sidebar-nav">
+        @for (item of filteredMenu(); track item.label) {
+            @if (item.children && item.children.length > 0) {
+                <!-- Menú con submenú -->
+                <div class="nav-item has-children">
+                    <div
+                        class="nav-link"
+                        [class.active]="isActive(item.route) || isActiveChild(item.children)"
+                        (click)="toggleMenu(item.label)"
+                    >
+                        <i class="fa-solid {{ item.icon }} nav-icon"></i>
+                        <span class="nav-label" [class.hidden]="isCollapsedState">{{ item.label }}</span>
+                        <i class="fa-solid fa-chevron-down arrow" [class.rotated]="isMenuExpanded(item.label)" [class.hidden]="isCollapsedState"></i>
+                    </div>
+                    <div class="sub-menu" [class.expanded]="isMenuExpanded(item.label)" [class.hidden]="isCollapsedState">
+                        @for (child of item.children; track child.label) {
+                            <a
+                                class="sub-link"
+                                [routerLink]="child.route"
+                                routerLinkActive="active"
+                                [routerLinkActiveOptions]="{ exact: true }"
+                            >
+                                <i class="fa-solid {{ child.icon }} sub-icon"></i>
+                                <span>{{ child.label }}</span>
+                            </a>
+                        }
+                    </div>
+                </div>
+            } @else {
+                <!-- Menú simple -->
+                <a
+                    class="nav-item nav-link"
+                    [routerLink]="item.route"
+                    routerLinkActive="active"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                >
+                    <i class="fa-solid {{ item.icon }} nav-icon"></i>
+                    <span class="nav-label" [class.hidden]="isCollapsedState">{{ item.label }}</span>
+                </a>
+            }
+        }
+    </nav>
+
+    <!-- ========== FOOTER DEL SIDEBAR ========== -->
+    <div class="sidebar-footer">
+        <button class="logout-btn" (click)="logout()">
+            <i class="fa-solid fa-right-from-bracket nav-icon"></i>
+            <span class="nav-label" [class.hidden]="isCollapsedState">Cerrar Sesión</span>
+        </button>
+
+        <div class="sidebar-version" [class.hidden]="isCollapsedState">
+            <span>v2.0.0</span>
+        </div>
+    </div>
+</aside>
+
+<!-- ========== OVERLAY PARA MÓVIL ========== -->
+@if (isMobileState && !isCollapsedState) {
+    <div class="sidebar-overlay" (click)="toggleSidebar()"></div>
 }

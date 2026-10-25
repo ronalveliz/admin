@@ -11,4 +11,6 @@ export interface PerfilInfo {
     totalGastos: number;
     balance: number;
     tieneAccesoIndependiente: boolean;
+    emailAcceso?: string;
+    password?: string;
 }

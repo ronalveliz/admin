@@ -7,4 +7,6 @@ export interface PerfilRequest {
     fotoPerfil?: string;
     fechaNacimiento?: string;
     tipo: string;  // PERSONAL, MIEMBRO, EMPLEADO
+    emailAcceso?: string;
+    password?: string;
 }

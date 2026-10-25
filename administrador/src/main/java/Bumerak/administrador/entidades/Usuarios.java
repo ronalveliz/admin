@@ -59,7 +59,6 @@ public class Usuarios {
 
     /**
      * Perfiles que este usuario administra (solo si es ADMINISTRADOR, FAMILIA o EMPRESA)
-     *tiene muchos perfiles
      */
     @OneToMany(mappedBy = "usuarioAdministrador", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
@@ -172,6 +171,22 @@ public class Usuarios {
     }
 
     /**
+     * ✅ NUEVO: Devuelve el perfil "activo" del usuario según su rol:
+     *   - Admin (ADMINISTRADOR, FAMILIA, EMPRESA) → su perfil personal
+     *   - Perfil independiente (MIEMBRO, EMPLEADO) → su perfil asociado
+     *   - Cualquier otro caso → null
+     */
+    public Perfil getPerfilActivo() {
+        if (this.esAdministradorDePerfiles()) {
+            return this.getPerfilPersonal();
+        }
+        if (this.esPerfilIndependiente()) {
+            return this.perfilAsociado;
+        }
+        return null;
+    }
+
+    /**
      * Obtiene los miembros de la familia (excluyendo personal)
      */
     public List<Perfil> getMiembrosFamilia() {
@@ -191,26 +206,21 @@ public class Usuarios {
 
     // ========== SPRING SECURITY ==========
 
-
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + this.rol.name()));
     }
-
 
     public String getUsername() {
         return this.email;
     }
 
-
     public boolean isAccountNonExpired() {
         return accountNonExpired;
     }
 
-
     public boolean isAccountNonLocked() {
         return accountNonLocked;
     }
-
 
     public boolean isCredentialsNonExpired() {
         return credentialsNonExpired;
@@ -219,6 +229,4 @@ public class Usuarios {
     public boolean isEnabled() {
         return enabled;
     }
-
-
 }

@@ -1,110 +1,156 @@
+<!-- src/app/pages/login/login.html -->
+
 <div class="principal">
-<div class="container" id="container" [class.right-panel-active]="isRegister()">
-  <!-- Login -->
-  <div class="form-container login-container">
-    <form [formGroup]="loginForm" (ngSubmit)="login()">
-      <h1>Inicia sesión aquí</h1>
+    <div class="container" id="container" [class.right-panel-active]="isRegister()">
 
-      <div class="form-control">
-        <input type="email" formControlName="email" placeholder="Correo electrónico" />
-        <span></span>
-        @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
-          <small class="error-text">Correo inválido</small>
-        }
-      </div>
+        <!-- ========================================= -->
+        <!-- LOGIN -->
+        <!-- ========================================= -->
+        <div class="form-container login-container">
+            <form [formGroup]="loginForm" (ngSubmit)="login()">
+                <h1>Inicia sesión aquí</h1>
 
-      <div class="form-control">
-        <input type="password" formControlName="password" placeholder="Contraseña" />
-        <span></span>
-        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-          <small class="error-text">La contraseña es requerida</small>
-        }
-      </div>
+                <div class="form-control">
+                    <input type="email" formControlName="email" placeholder="Correo electrónico" />
+                    @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+                        <small class="error-text">Correo inválido</small>
+                    }
+                </div>
 
-      <div class="content">
-        <div class="checkbox">
-          <input type="checkbox" id="remember" />
-          <label for="remember">Recuérdame</label>
+                <div class="form-control">
+                    <input type="password" formControlName="password" placeholder="Contraseña" />
+                    @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+                        <small class="error-text">La contraseña es requerida</small>
+                    }
+                </div>
+
+                <div class="content">
+                    <div class="checkbox">
+                        <input type="checkbox" id="remember" />
+                        <label for="remember">Recuérdame</label>
+                    </div>
+                    <div class="pass-link">
+                        <a href="#">¿Olvidaste la contraseña?</a>
+                    </div>
+                </div>
+
+                @if (error()) {
+                    <div class="error-message">⚠️ {{ error() }}</div>
+                }
+
+                <button type="submit" class="btn-login">
+                    @if (isLoading()) {
+                        <span class="spinner"></span> Iniciando...
+                    } @else {
+                        Iniciar sesión
+                    }
+                </button>
+
+                <span>O usa tu cuenta</span>
+                <div class="social-container">
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#"><i class="fa-brands fa-google"></i></a>
+                    <a href="#"><i class="fa-brands fa-tiktok"></i></a>
+                </div>
+            </form>
         </div>
-        <div class="pass-link">
-          <a href="#">¿Olvidaste la contraseña?</a>
+
+        <!-- ========================================= -->
+        <!-- REGISTRO SIMPLIFICADO -->
+        <!-- ========================================= -->
+        <div class="form-container register-container">
+            <form [formGroup]="registroForm" (ngSubmit)="registrar()">
+                <h1>Regístrate aquí</h1>
+
+                <!-- ✅ SELECTOR DE TIPO DE CUENTA -->
+                <div class="tipo-cuenta-selector">
+                    @for (tipo of tiposCuenta; track tipo.value) {
+                        <div
+                            class="tipo-cuenta-option"
+                            [class.active]="tipoCuenta() === tipo.value"
+                            (click)="seleccionarTipo(tipo.value)"
+                        >
+                            <span class="tipo-cuenta-icon">{{ tipo.label.split(' ')[0] }}</span>
+                            <span class="tipo-cuenta-label">{{ tipo.label.split(' ')[1] }}</span>
+                            <small class="tipo-cuenta-desc">{{ tipo.descripcion }}</small>
+                        </div>
+                    }
+                </div>
+
+                <!-- EMAIL -->
+                <div class="form-control">
+                    <input type="email" formControlName="email" placeholder="Correo electrónico" />
+                    @if (regEmailControl?.touched && regEmailControl?.invalid) {
+                        <small class="error-text">Ingresa un email válido</small>
+                    }
+                </div>
+
+                <!-- CONTRASEÑA -->
+                <div class="form-control">
+                    <input type="password" formControlName="password" placeholder="Contraseña (mínimo 6 caracteres)" />
+                    @if (regPasswordControl?.touched && regPasswordControl?.invalid) {
+                        <small class="error-text">Mínimo 6 caracteres</small>
+                    }
+                </div>
+
+                <!-- CONFIRMAR CONTRASEÑA -->
+                <div class="form-control">
+                    <input type="password" formControlName="passwordConfirm" placeholder="Confirmar contraseña" />
+                    @if (registroForm.hasError('passwordMismatch') && passwordConfirmControl?.touched) {
+                        <small class="error-text">Las contraseñas no coinciden</small>
+                    }
+                </div>
+
+                <!-- TELÉFONO -->
+                <div class="form-control">
+                    <input type="tel" formControlName="telefono" placeholder="Teléfono" />
+                    @if (telefonoControl?.touched && telefonoControl?.invalid) {
+                        <small class="error-text">Ingresa un teléfono válido (9-15 dígitos)</small>
+                    }
+                </div>
+
+                @if (error()) {
+                    <div class="error-message">⚠️ {{ error() }}</div>
+                }
+
+                <button type="submit" class="btn-registrar">
+                    @if (isLoading()) {
+                        <span class="spinner"></span> Registrando...
+                    } @else {
+                        Registrarse
+                    }
+                </button>
+
+                <span>O usa tu cuenta</span>
+                <div class="social-container">
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#"><i class="fa-brands fa-google"></i></a>
+                    <a href="#"><i class="fa-brands fa-tiktok"></i></a>
+                </div>
+            </form>
         </div>
-      </div>
 
-      <button type="submit" [disabled]="loginForm.invalid">Iniciar sesión</button>
+        <!-- ========================================= -->
+        <!-- OVERLAY -->
+        <!-- ========================================= -->
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h1>Hola amigos</h1>
+                    <p>Si tienes una cuenta, inicia sesión aquí y diviértete</p>
+                    <button class="ghost" (click)="mostrarLogin()">
+                        <i class="fa-solid fa-arrow-left"></i> Iniciar sesión
+                    </button>
+                </div>
 
-      <span>O usa tu cuenta</span>
-      <div class="social-container">
-        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
-        <a href="#"><i class="fa-brands fa-google"></i></a>
-        <a href="#"><i class="fa-brands fa-tiktok"></i></a>
-      </div>
-    </form>
-  </div>
-
-  <!-- Registro -->
-  <div class="form-container register-container">
-    <form [formGroup]="usuariosForm" (ngSubmit)="registrar()">
-      <h1>Regístrate aquí</h1>
-
-      <div class="form-control">
-        <input type="text" formControlName="nombre" placeholder="Nombre completo" />
-        <span></span>
-      </div>
-
-      <div class="form-control">
-        <input type="email" formControlName="email" placeholder="Correo electrónico" />
-        <span></span>
-      </div>
-
-      <div class="form-control">
-        <input type="password" formControlName="password" placeholder="Contraseña" />
-        <span></span>
-      </div>
-
-      <div class="form-control">
-        <input type="password" formControlName="passwordConfirm" placeholder="Confirmar contraseña" />
-        <span></span>
-        @if (usuariosForm.hasError('passwordMismatch') && usuariosForm.get('passwordConfirm')?.touched) {
-          <small class="error-text">Las contraseñas no coinciden</small>
-        }
-      </div>
-
-      <div class="form-control">
-        <input type="text" formControlName="telefono" placeholder="Teléfono (opcional)" />
-        <span></span>
-      </div>
-
-      <button type="submit" [disabled]="usuariosForm.invalid">Registrar</button>
-
-      <span>O usa tu cuenta</span>
-      <div class="social-container">
-        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
-        <a href="#"><i class="fa-brands fa-google"></i></a>
-        <a href="#"><i class="fa-brands fa-tiktok"></i></a>
-      </div>
-    </form>
-  </div>
-
-  <!-- Overlay -->
-  <div class="overlay-container">
-    <div class="overlay">
-      <div class="overlay-panel overlay-left">
-        <h1>Hola amigos</h1>
-        <p>Si tienes una cuenta, inicia sesión aquí y diviértete</p>
-        <button class="ghost" (click)="mostrarLogin()">
-          <i class="fa-solid fa-arrow-left"></i> Iniciar sesión
-        </button>
-      </div>
-
-      <div class="overlay-panel overlay-right">
-        <h1>Comienza tu viaje ahora</h1>
-        <p>Si aún no tienes una cuenta, únete a nosotros</p>
-        <button class="ghost" (click)="mostrarRegistro()">
-          Registrarse <i class="fa-solid fa-arrow-right"></i>
-        </button>
-      </div>
+                <div class="overlay-panel overlay-right">
+                    <h1>Comienza tu viaje ahora</h1>
+                    <p>Si aún no tienes una cuenta, únete a nosotros</p>
+                    <button class="ghost" (click)="mostrarRegistro()">
+                        Registrarse <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 </div>

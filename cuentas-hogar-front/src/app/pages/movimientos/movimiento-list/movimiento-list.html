@@ -1,1 +1,243 @@
-<p>movimiento-list works!</p>
+<!-- src/app/pages/movimientos/movimiento-list/movimiento-list.component.html -->
+
+<div class="movimiento-list-container">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="header-left">
+            <h2>📊 Movimientos</h2>
+            <p class="subtitle">Gestiona todos tus ingresos y gastos</p>
+        </div>
+        <div class="header-right">
+            <a routerLink="/movimientos/nuevo" class="btn-primary">
+                <i class="fa-solid fa-plus"></i> Nuevo Movimiento
+            </a>
+        </div>
+    </div>
+
+    <!-- ========== FILTROS ========== -->
+    <div class="filters-section">
+        <div class="filters-row">
+            <!-- Búsqueda -->
+            <div class="filter-group search-group">
+                <i class="fa-solid fa-search"></i>
+                <input
+                    type="text"
+                    placeholder="Buscar movimientos..."
+                    [(ngModel)]="busqueda"
+                    (keyup.enter)="aplicarFiltros()"
+                />
+            </div>
+
+            <!-- Tipo -->
+            <div class="filter-group">
+                <select [(ngModel)]="filtroTipo" (change)="aplicarFiltros()">
+                    @for (tipo of tiposFiltro; track tipo.value) {
+                        <option [value]="tipo.value">{{ tipo.label }}</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Categoría -->
+            <div class="filter-group">
+                <select [(ngModel)]="filtroCategoria" (change)="aplicarFiltros()">
+                    @for (cat of categoriasFiltro(); track cat.value) {
+                        <option [value]="cat.value">{{ cat.label }}</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Perfil (solo admin) -->
+            @if (isAdmin()) {
+                <div class="filter-group">
+                    <select [(ngModel)]="filtroPerfil" (change)="aplicarFiltros()">
+                        <option value="TODOS">Todos los perfiles</option>
+                        @for (perfil of perfiles(); track perfil.id) {
+                            <option [value]="perfil.id">{{ perfil.nombreCompleto }}</option>
+                        }
+                    </select>
+                </div>
+            }
+
+            <!-- Fechas -->
+            <div class="filter-group date-group">
+                <input
+                    type="date"
+                    [(ngModel)]="filtroFechaInicio"
+                    (change)="aplicarFiltros()"
+                    placeholder="Desde"
+                />
+                <span class="date-separator">—</span>
+                <input
+                    type="date"
+                    [(ngModel)]="filtroFechaFin"
+                    (change)="aplicarFiltros()"
+                    placeholder="Hasta"
+                />
+            </div>
+
+            <!-- Botones -->
+            <button class="btn-clear-filters" (click)="limpiarFiltros()">
+                <i class="fa-solid fa-undo"></i> Limpiar
+            </button>
+        </div>
+
+        <!-- Resumen de filtros activos -->
+        <div class="filters-summary">
+            <span class="result-count">{{ totalElements() }} movimientos</span>
+            @if (filtroTipo() !== 'TODOS') {
+                <span class="filter-badge">
+                    {{ filtroTipo() }}
+                    <i class="fa-solid fa-xmark" (click)="filtroTipo.set('TODOS'); aplicarFiltros()"></i>
+                </span>
+            }
+            @if (filtroCategoria() !== 'TODAS') {
+                <span class="filter-badge">
+                    {{ getCategoriaLabel(filtroCategoria()) }}
+                    <i class="fa-solid fa-xmark" (click)="filtroCategoria.set('TODAS'); aplicarFiltros()"></i>
+                </span>
+            }
+            @if (filtroFechaInicio() || filtroFechaFin()) {
+                <span class="filter-badge">
+                    📅 {{ filtroFechaInicio() || '...' }} — {{ filtroFechaFin() || '...' }}
+                    <i class="fa-solid fa-xmark" (click)="filtroFechaInicio.set(''); filtroFechaFin.set(''); aplicarFiltros()"></i>
+                </span>
+            }
+        </div>
+    </div>
+
+    <!-- ========== TABLA DE MOVIMIENTOS ========== -->
+    @if (isLoading()) {
+        <div class="loading-state">
+            <div class="spinner-grow text-primary"></div>
+            <p>Cargando movimientos...</p>
+        </div>
+    } @else if (movimientos().length === 0) {
+        <div class="empty-state">
+            <i class="fa-regular fa-receipt"></i>
+            <h3>No hay movimientos</h3>
+            <p>Comienza registrando tu primer ingreso o gasto</p>
+            <a routerLink="/movimientos/nuevo" class="btn-primary">
+                <i class="fa-solid fa-plus"></i> Crear movimiento
+            </a>
+        </div>
+    } @else {
+        <div class="table-container">
+            <table class="movimiento-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Descripción</th>
+                        <th>Categoría</th>
+                        <th>Perfil</th>
+                        <th>Monto</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (mov of movimientos(); track mov.id) {
+                        <tr>
+                            <td class="date-cell">
+                                <span class="date-day">{{ getFormattedDate(mov.fecha) }}</span>
+                            </td>
+                            <td>
+                                <div class="desc-cell">
+                                    <span class="desc-text">{{ mov.descripcion || 'Sin descripción' }}</span>
+                                    <span class="desc-type" [class]="getTipoColor(mov.tipo)">
+                                        <i class="fa-solid {{ getTipoIcon(mov.tipo) }}"></i>
+                                        {{ mov.tipo }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="category-badge">
+                                    {{ getCategoriaLabel(mov.categoria) }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="perfil-name">{{ mov.perfilNombre || 'Sin perfil' }}</span>
+                            </td>
+                            <td>
+                                <span class="amount" [class]="getTipoColor(mov.tipo)">
+                                    {{ mov.tipo === 'INGRESO' ? '+' : '-' }} {{ formatCurrency(mov.monto) }}
+                                </span>
+                            </td>
+                            <td class="actions-cell">
+                                <a [routerLink]="['/movimientos', mov.id, 'editar']" class="btn-edit" title="Editar">
+                                    <i class="fa-solid fa-pen"></i>
+                                </a>
+                                <button class="btn-delete" title="Eliminar" (click)="eliminarMovimiento(mov.id)">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <!-- ========== PAGINACIÓN ========== -->
+    @if (totalPages() > 1) {
+        <div class="pagination-container">
+            <div class="pagination-info">
+                Mostrando {{ currentPage() * pageSize() + 1 }} - 
+                {{ Math.min((currentPage() + 1) * pageSize(), totalElements()) }} 
+                de {{ totalElements() }} movimientos
+            </div>
+            <div class="pagination-controls">
+                <button
+                    class="page-btn"
+                    [disabled]="currentPage() === 0"
+                    (click)="cambiarPagina(currentPage() - 1)"
+                >
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+
+                @for (page of getPages(); track page) {
+                    @if (page === -1) {
+                        <span class="page-dots">…</span>
+                    } @else {
+                        <button
+                            class="page-btn"
+                            [class.active]="page === currentPage()"
+                            (click)="cambiarPagina(page)"
+                        >
+                            {{ page + 1 }}
+                        </button>
+                    }
+                }
+
+                <button
+                    class="page-btn"
+                    [disabled]="currentPage() === totalPages() - 1"
+                    (click)="cambiarPagina(currentPage() + 1)"
+                >
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    }
+
+    <!-- ========== RESULTADOS ========== -->
+    <div class="results-summary">
+        <div class="summary-item">
+            <span class="summary-label">Total Ingresos</span>
+            <span class="summary-value positive">
+                {{ formatCurrency(resumenIngresos()) }}
+            </span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-label">Total Gastos</span>
+            <span class="summary-value negative">
+                {{ formatCurrency(resumenGastos()) }}
+            </span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-label">Balance</span>
+            <span class="summary-value" [class.positive]="resumenBalance() >= 0"
+                 [class.negative]="resumenBalance() < 0">
+                {{ formatCurrency(resumenBalance()) }}
+            </span>
+        </div>
+    </div>
+</div>

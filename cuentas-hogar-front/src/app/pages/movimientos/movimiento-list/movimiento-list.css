@@ -1,0 +1,494 @@
+/* src/app/pages/movimientos/movimiento-list/movimiento-list.component.css */
+
+.movimiento-list-container {
+    padding: 1.5rem;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+/* ========== HEADER ========== */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.header-left h2 {
+    margin: 0;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.header-left .subtitle {
+    margin: 0.25rem 0 0 0;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+.btn-primary {
+    padding: 0.6rem 1.25rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+/* ========== FILTROS ========== */
+.filters-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.filters-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.filter-group {
+    position: relative;
+}
+
+.filter-group input,
+.filter-group select {
+    padding: 0.5rem 0.75rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: #fafafa;
+    transition: all 0.3s;
+    min-width: 120px;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+}
+
+.search-group {
+    display: flex;
+    align-items: center;
+    background: #fafafa;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0 0.5rem;
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-group i {
+    color: #7f8c8d;
+}
+
+.search-group input {
+    border: none;
+    background: transparent;
+    padding: 0.5rem;
+    flex: 1;
+    min-width: 100px;
+}
+
+.search-group input:focus {
+    outline: none;
+}
+
+.date-group {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: #fafafa;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0 0.5rem;
+}
+
+.date-group input {
+    border: none;
+    background: transparent;
+    padding: 0.5rem;
+    width: 120px;
+}
+
+.date-group input:focus {
+    outline: none;
+}
+
+.date-separator {
+    color: #7f8c8d;
+}
+
+.btn-clear-filters {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: transparent;
+    color: #7f8c8d;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.btn-clear-filters:hover {
+    background: #f1f3f4;
+    color: #2c3e50;
+}
+
+/* ========== FILTROS SUMMARY ========== */
+.filters-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.result-count {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.9rem;
+}
+
+.filter-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.6rem;
+    background: #e9ecef;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    color: #2c3e50;
+}
+
+.filter-badge i {
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+}
+
+.filter-badge i:hover {
+    opacity: 1;
+}
+
+/* ========== TABLA ========== */
+.table-container {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.movimiento-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.movimiento-table thead {
+    background: #f8f9fa;
+}
+
+.movimiento-table th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.movimiento-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f1f3f4;
+    vertical-align: middle;
+}
+
+.movimiento-table tbody tr:hover {
+    background: #fafbfc;
+}
+
+/* ========== CELDAS ========== */
+.date-cell .date-day {
+    font-size: 0.85rem;
+    color: #2c3e50;
+}
+
+.desc-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.desc-text {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.desc-type {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.category-badge {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.6rem;
+    background: #f1f3f4;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.perfil-name {
+    font-size: 0.85rem;
+    color: #2c3e50;
+}
+
+.amount {
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.amount.text-success { color: #28a745; }
+.amount.text-danger { color: #dc3545; }
+.amount.text-warning { color: #ffc107; }
+
+/* ========== ACCIONES ========== */
+.actions-cell {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.btn-edit,
+.btn-delete {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+
+.btn-edit {
+    background: #e9ecef;
+    color: #2c3e50;
+}
+
+.btn-edit:hover {
+    background: #667eea;
+    color: white;
+}
+
+.btn-delete {
+    background: #f8d7da;
+    color: #dc3545;
+}
+
+.btn-delete:hover {
+    background: #dc3545;
+    color: white;
+}
+
+/* ========== PAGINACIÓN ========== */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.pagination-info {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+}
+
+.pagination-controls {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.page-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #2c3e50;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.page-btn:hover:not(:disabled):not(.active) {
+    background: #e9ecef;
+}
+
+.page-btn.active {
+    background: #667eea;
+    color: white;
+}
+
+.page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.page-dots {
+    display: flex;
+    align-items: center;
+    padding: 0 0.25rem;
+    color: #7f8c8d;
+}
+
+/* ========== ESTADOS ========== */
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 0;
+    color: #7f8c8d;
+}
+
+.loading-state .spinner-grow {
+    width: 3rem;
+    height: 3rem;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 0;
+    text-align: center;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #ddd;
+    margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+    margin: 0 0 0.5rem 0;
+    color: #2c3e50;
+}
+
+.empty-state p {
+    color: #7f8c8d;
+    margin-bottom: 1.5rem;
+}
+
+/* ========== RESULTADOS ========== */
+.results-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.summary-item {
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.summary-label {
+    display: block;
+    font-size: 0.8rem;
+    color: #7f8c8d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.summary-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.summary-value.positive {
+    color: #28a745;
+}
+
+.summary-value.negative {
+    color: #dc3545;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 992px) {
+    .filters-row {
+        flex-direction: column;
+    }
+
+    .filter-group {
+        width: 100%;
+    }
+
+    .filter-group input,
+    .filter-group select {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .search-group {
+        width: 100%;
+    }
+
+    .date-group {
+        width: 100%;
+    }
+
+    .date-group input {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .movimiento-table {
+        font-size: 0.85rem;
+        display: block;
+        overflow-x: auto;
+    }
+
+    .pagination-container {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+}
